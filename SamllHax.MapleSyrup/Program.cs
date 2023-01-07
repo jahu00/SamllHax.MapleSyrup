@@ -17,12 +17,12 @@ namespace SamllHax.MapleSyrup
                 .ConfigureServices((context, services) =>
                 {
                     services.AddSingleton<IResourceProvider, DumperResourceProvider>();
-                    services.AddSingleton<DumperResourceManager>();
+                    services.AddSingleton<ResourceManager>();
                     services.AddSingleton<MapRenderer>();
                     services.AddSingleton<Window>();
                 }).Build();
 
-            var resourceManager = ActivatorUtilities.CreateInstance<DumperResourceManager>(host.Services);
+            var resourceManager = ActivatorUtilities.CreateInstance<ResourceManager>(host.Services);
 
             /*using var client = new JurneyClient();
             client.Loop();*/

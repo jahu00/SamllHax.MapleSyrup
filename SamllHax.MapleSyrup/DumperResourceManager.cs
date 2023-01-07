@@ -13,7 +13,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace SamllHax.MapleSyrup
 {
-    public class DumperResourceManager
+    public class ResourceManager
     {
         private readonly IResourceProvider _resourceProvider;
         private readonly IConfiguration _configuration;
@@ -22,7 +22,7 @@ namespace SamllHax.MapleSyrup
         public Dictionary<string, WzEntity> EntityCache { get; } = new Dictionary<string, WzEntity>();
         public Dictionary<string, SKBitmap> ImageCatche { get; } = new Dictionary<string, SKBitmap>();
 
-        public DumperResourceManager(IConfiguration configuration, IResourceProvider resourceProvider)
+        public ResourceManager(IConfiguration configuration, IResourceProvider resourceProvider)
         {
             //_configuration = configuration.GetSection("DumperResourceManager");
             _resourceProvider = resourceProvider;
