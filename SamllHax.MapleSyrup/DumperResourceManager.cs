@@ -9,62 +9,46 @@ using System.Globalization;
 using SamllHax.MapleSyrup.Extensions;
 using SkiaSharp;
 using Microsoft.Extensions.Configuration;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace SamllHax.MapleSyrup
 {
     public class DumperResourceManager
     {
-        private readonly string _path;
+        private readonly IResourceProvider _resourceProvider;
         private readonly IConfiguration _configuration;
 
         //public Dictionary<string, WzTileSet> TileSetCatche { get; } = new Dictionary<string, WzTileSet>();
         public Dictionary<string, WzEntity> EntityCache { get; } = new Dictionary<string, WzEntity>();
         public Dictionary<string, SKBitmap> ImageCatche { get; } = new Dictionary<string, SKBitmap>();
 
-        public DumperResourceManager(IConfiguration configuration)
+        public DumperResourceManager(IConfiguration configuration, IResourceProvider resourceProvider)
         {
-            _configuration = configuration.GetSection("DumperResourceManager");
-            _path = _configuration.GetValue<string>("Path");
+            //_configuration = configuration.GetSection("DumperResourceManager");
+            _resourceProvider = resourceProvider;
         }
 
         public WzMap GetMap(int id)
         {
-            var strId = id.ToString().PadLeft(9, '0');
-            var areaSuffix = id / 100000000;
-            var filePath = Path.Combine(_path, "Map.wz", "Map", $"Map{areaSuffix}", $"{strId}.img.xml");
-            var xml = XElement.Load(filePath);
-            var node = (WzDirectory)ParseNode(xml);
-            var map = new WzMap(node);
-            return map;
+            return GetEntityFromCache($"Map-{id}", () => _resourceProvider.GetMap(id));
         }
 
         public WzTileSet GetTileSet(string name)
         {
-            var relativeFilePath = Path.Combine("Map.wz", "Tile", $"{name}.img.xml");
-            return GetEntityFromCache(relativeFilePath, (node) =>
-            {
-                return new WzTileSet(node);
-            });
+            return GetEntityFromCache($"TileSet-{name}", () => _resourceProvider.GetTileSet(name));
         }
 
         public WzObjectGroup GetObjectGroup(string name)
         {
-            var relativeFilePath = Path.Combine("Map.wz", "Obj", $"{name}.img.xml");
-            return GetEntityFromCache(relativeFilePath, (node) =>
-            {
-                return new WzObjectGroup(node);
-            });
+            return GetEntityFromCache($"ObjectGroup-{name}", () => _resourceProvider.GetObjectGroup(name));
         }
 
-        public T GetEntityFromCache<T>(string key, Func<WzDirectory,T> getEntity) where T : WzEntity
+        public T GetEntityFromCache<T>(string key, Func<T> fallback) where T : WzEntity
         {
             WzEntity entity;
             if (!EntityCache.TryGetValue(key, out entity))
             {
-                var filePath = Path.Combine(_path, key);
-                var xml = XElement.Load(filePath);
-                var node = (WzDirectory)ParseNode(xml);
-                entity = getEntity(node);
+                entity = fallback();
                 EntityCache.Add(key, entity);
             }
             return (T)entity;
@@ -72,76 +56,28 @@ namespace SamllHax.MapleSyrup
 
         public SKBitmap GetTileImage(string tileSetName, string tileName, int variant)
         {
-            var relativeFilePath = Path.Combine("Map.wz", "Tile", $"{tileSetName}.img", tileName, $"{variant}.png");
-            return GetImage(relativeFilePath);
+            var key = $"TileSet-{tileSetName}-{tileName}-{variant}";
+            return GetImageFromCache(key, () => _resourceProvider.GetTileImage(tileSetName, tileName, variant));
         }
 
         public SKBitmap GetObjectImage(string objectGroupName, string objectName, string subSetName, string partId, string frameId)
         {
-            var relativeFilePath = Path.Combine("Map.wz", "Obj", $"{objectGroupName}.img", objectName, subSetName, partId, $"{frameId}.png");
-            return GetImage(relativeFilePath);
+            var key = $"Obj-{objectGroupName}-{ objectName}-{ subSetName}-{ partId}-{frameId}";
+            return GetImageFromCache(key, () => _resourceProvider.GetObjectImage(objectGroupName, objectName, subSetName, partId, frameId));
         }
 
-        public SKBitmap GetImage(string relativeFilePath)
+        public SKBitmap GetImageFromCache(string key, Func<Stream> fallback)
         {
             SKBitmap bitmap;
-            if (!ImageCatche.TryGetValue(relativeFilePath, out bitmap))
+            if (!ImageCatche.TryGetValue(key, out bitmap))
             {
-                var filePath = Path.Combine(_path, relativeFilePath);
-                bitmap = SKBitmap.Decode(filePath);
-                ImageCatche.Add(relativeFilePath, bitmap);
+                var stream = fallback();
+                bitmap = SKBitmap.Decode(stream);
+                ImageCatche.Add(key, bitmap);
             }
             return bitmap;
         }
 
-        public WzNode ParseNode(XElement xml)
-        {
-            WzNode node;
-            var xmlName = xml.Name.ToString();
-            switch (xmlName)
-            {
-                case "imgdir":
-                    node = new WzDirectory();
-                    break;
-                case "extended":
-                    node = new WzDirectory();
-                    break;
-                case "int":
-                    node = new WzIntValue() { Value = xml.Attribute("value").ValueAsInt() };
-                    break;
-                case "float":
-                    node = new WzFloatValue() { Value = xml.Attribute("value").ValueAsFloat() };
-                    break;
-                case "string":
-                    node = new WzStringValue() { Value = xml.Attribute("value").Value };
-                    break;
-                case "canvas":
-                    node = new WzCanvas() { Width = xml.Attribute("width").ValueAsInt(), Height = xml.Attribute("height").ValueAsInt() };
-                    break;
-                case "vector":
-                    node = new WzVector() { X = xml.Attribute("x").ValueAsInt(), Y = xml.Attribute("y").ValueAsInt() };
-                    break;
-                case "uol":
-                    node = new WzRepeat() { Value = xml.Attribute("value").Value };
-                    break;
-                default:
-                    //node = new WzNode();
-                    throw new Exception($"Unupported xml node type {xmlName}");
-                    break;
-            }
-            node.Name = xml.Attribute("name").Value;
-            node.Xml = xml;
-            var nodeAsDirectory = node as WzDirectory;
-            var childrenXml = xml.Nodes().ToList();
-            if (childrenXml.Count() > 0)
-            {
-                if (nodeAsDirectory == null)
-                {
-                    throw new Exception($"Node {node.Name} of type {node.GetType().Name} is not a directory");
-                }
-                nodeAsDirectory.Children = childrenXml.Select(childXml => ParseNode((XElement)childXml)).ToList();
-            }
-            return node;
-        }
+        
     }
 }

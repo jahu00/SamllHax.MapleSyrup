@@ -11,15 +11,18 @@ namespace SamllHax.MapleSyrup
         {
             var configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json");
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
 
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
                 {
-                    services.AddSingleton<ResourceManager>();
+                    services.AddSingleton<IResourceProvider, DumperResourceProvider>();
+                    services.AddSingleton<DumperResourceManager>();
+                    services.AddSingleton<MapRenderer>();
+                    services.AddSingleton<Window>();
                 }).Build();
 
-            var resourceManager = ActivatorUtilities.CreateInstance<ResourceManager>(host.Services);
+            var resourceManager = ActivatorUtilities.CreateInstance<DumperResourceManager>(host.Services);
 
             /*using var client = new JurneyClient();
             client.Loop();*/

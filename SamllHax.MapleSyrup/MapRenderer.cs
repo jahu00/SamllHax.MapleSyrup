@@ -10,9 +10,9 @@ namespace SamllHax.MapleSyrup
 {
     public class MapRenderer
     {
-        private ResourceManager _resourceManager;
+        private DumperResourceManager _resourceManager;
 
-        public MapRenderer(ResourceManager resourceManager)
+        public MapRenderer(DumperResourceManager resourceManager)
         {
             _resourceManager = resourceManager;
         }

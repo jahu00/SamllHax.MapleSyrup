@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using Microsoft.Extensions.Configuration;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -19,11 +20,13 @@ namespace SamllHax.MapleSyrup.IO
         private GRBackendRenderTarget renderTarget;
         private SKSurface surface;
         private SKCanvas canvas;
+        private readonly IConfiguration _configuration;
 
         public SKPaint TestBrush { get; private set; }
 
-        public Window(): base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (800, 600), Title = "MyWindow" })
+        public Window(IConfiguration configuration): base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
         {
+            _configuration = configuration;
         }
 
         protected override void OnLoad()
