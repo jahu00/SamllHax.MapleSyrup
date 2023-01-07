@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace SamllHax.MapleSyrup
 {
-    public class ResourceManager
+    public class DumperResourceManager
     {
         private readonly string _path;
         private readonly IConfiguration _configuration;
@@ -21,7 +21,7 @@ namespace SamllHax.MapleSyrup
         public Dictionary<string, WzEntity> EntityCache { get; } = new Dictionary<string, WzEntity>();
         public Dictionary<string, SKBitmap> ImageCatche { get; } = new Dictionary<string, SKBitmap>();
 
-        public ResourceManager(IConfiguration configuration)
+        public DumperResourceManager(IConfiguration configuration)
         {
             _configuration = configuration.GetSection("DumperResourceManager");
             _path = _configuration.GetValue<string>("Path");
