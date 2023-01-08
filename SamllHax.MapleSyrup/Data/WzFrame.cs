@@ -19,5 +19,10 @@ namespace SamllHax.MapleSyrup.Data
         public int? Delay => _directory.GetSingleOrDefaultChild<WzIntValue>("delay")?.Value;
         public int? Alpha0 => _directory.GetSingleOrDefaultChild<WzIntValue>("a0")?.Value;
         public int? Alpha1 => _directory.GetSingleOrDefaultChild<WzIntValue>("a1")?.Value;
+
+        /// <summary>
+        /// Foothold as used by tiles
+        /// </summary>
+        public List<WzVector> Foothold => _directory.GetSingleOrDefaultChild<WzExtended>("foothold")?.Children.Select(x => (WzVector)x).ToList();
     }
 }

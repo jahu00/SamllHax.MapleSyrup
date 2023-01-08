@@ -12,7 +12,7 @@ namespace SamllHax.MapleSyrup.Data
 
         public WzObjectPart(WzDirectory directory) : base(directory)
         {
-            foreach (var frameNode in _directory.Children)
+            foreach (var frameNode in _directory.Children.OrderByDescending(x => x is WzCanvas))
             {
                 if (NonFrameNodeNames.Contains(frameNode.Name))
                 {

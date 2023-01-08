@@ -1,18 +1,28 @@
 ﻿using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SamllHax.MapleSyrup.Data
 {
-    public class Sprite
+    public class Sprite: DrawableBase, IDrawable, IBoundable
     {
-        public int Id { get; set; }
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int Z { get; set; }
         public SKBitmap Bitmap { get; set; }
+
+        public void Draw(SKCanvas canvas, int x, int y)
+        {
+            canvas.DrawBitmap(Bitmap, X + x, Y + y);
+        }
+
+        public SKRect GetBoundingBox(int x, int y)
+        {
+            var offsetX = X + x;
+            var offsetY = Y + y;
+            var boundingBox = new SKRect()
+            {
+                Top = offsetX,
+                Left = offsetY,
+                Bottom = offsetY + Bitmap.Height,
+                Right = offsetX + Bitmap.Width,
+            };
+            return boundingBox;
+        }
     }
 }

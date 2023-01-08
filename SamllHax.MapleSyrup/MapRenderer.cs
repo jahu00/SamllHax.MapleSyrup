@@ -23,8 +23,8 @@ namespace SamllHax.MapleSyrup
             var canvas = new SKCanvas(bitmap);
             foreach (var layer in map.Layers)
             {
-                var objectSprites = new SpriteCollection();
-                foreach (var obj in layer.Objects)
+                var objectSprites = new List<IDrawable>();
+                foreach (var obj in layer.Objects.OrderBy(x=> x.Z))
                 {
                     var objectGroupData = _resourceManager.GetObjectGroup(obj.GroupName);
                     var objectData = objectGroupData.Objects[obj.Name];
@@ -32,31 +32,25 @@ namespace SamllHax.MapleSyrup
                     var objectPartData = objectSubsetData.Parts[obj.PartId];
                     var objectPartFrameData = objectPartData.Frames.Values.First();
                     var objectBitmap = _resourceManager.GetObjectImage(obj.GroupName, obj.Name, obj.SubsetName, obj.PartId, objectPartFrameData.Id);
-                    objectSprites.Add(new Sprite() { Bitmap = objectBitmap, X = obj.X - objectPartFrameData.Origin.X, Y = obj.Y - objectPartFrameData.Origin.Y, Z = obj.Z });
-                    //canvas.DrawBitmap(objectBitmap, obj.X - objectPartFrameData.Origin.X + x, obj.Y - objectPartFrameData.Origin.Y + y);
+                    objectSprites.Add(new Sprite() { Bitmap = objectBitmap, X = obj.X - objectPartFrameData.Origin.X, Y = obj.Y - objectPartFrameData.Origin.Y });
                 }
-                foreach (var sprite in objectSprites.GetOrderdSprites())
-                {
-                    canvas.DrawBitmap(sprite.Bitmap, sprite.X + x, sprite.Y + y);
-                }
-                var tileSprites = new SpriteCollection();
+                new SpriteCollection() { Sprites = objectSprites }.Draw(canvas, x, y);
+
+                var tileSprites = new List<IDrawable>();
                 if (layer.TileSetName == null || layer.Tiles.Count == 0)
                 {
                     continue;
                 }
                 var tileSet = _resourceManager.GetTileSet(layer.TileSetName);
-                foreach (var tile in layer.Tiles)
+                foreach (var tile in layer.Tiles.OrderBy(x => x.Z))
                 {
                     var tileBitmap = _resourceManager.GetTileImage(layer.TileSetName, tile.Name, tile.Variant);
-                    var tileData = tileSet.Tiles[tile.Name].Variants[tile.Variant];
+                    var tileData = tileSet.Tiles[tile.Name].Tiles[tile.Variant];
                     //var z = tile.Z
-                    tileSprites.Add(new Sprite() { Bitmap = tileBitmap, X = tile.X - tileData.Origin.X, Y = tile.Y - tileData.Origin.Y, Z = tile.Z });
+                    tileSprites.Add(new Sprite() { Bitmap = tileBitmap, X = tile.X - tileData.Origin.X, Y = tile.Y - tileData.Origin.Y });
                     //canvas.DrawBitmap(tileBitmap, tile.X - tileData.Origin.X + x, tile.Y - tileData.Origin.Y + y);
                 }
-                foreach (var sprite in tileSprites.GetOrderdSprites())
-                {
-                    canvas.DrawBitmap(sprite.Bitmap, sprite.X + x, sprite.Y + y);
-                }
+                new SpriteCollection() { Sprites = tileSprites }.Draw(canvas, x, y);
             }
 
             return bitmap;

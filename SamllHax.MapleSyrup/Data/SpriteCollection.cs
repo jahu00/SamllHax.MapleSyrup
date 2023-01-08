@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL;
+using SkiaSharp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,21 +8,68 @@ using System.Threading.Tasks;
 
 namespace SamllHax.MapleSyrup.Data
 {
-    public class SpriteCollection
+    public class SpriteCollection: DrawableBase, IDrawable, IUpdatable, IBoundable
     {
-        public int Seed { get; private set; } = 0;
-        private List<Sprite> sprites = new List<Sprite>();
+        public List<IDrawable> Sprites { get; set; } = new List<IDrawable>();
 
-        public void Add(Sprite sprite)
+        public void Draw(SKCanvas canvas, int x, int y)
         {
-            Seed++;
-            sprite.Id = Seed;
-            sprites.Add(sprite);
+            var offsetX = X + x;
+            var offsetY = Y + y;
+            foreach(var sprite in Sprites)
+            {
+                sprite.Draw(canvas, offsetX, offsetY);
+            }
+
         }
 
-        public IEnumerable<Sprite> GetOrderdSprites()
+        public SKRect GetBoundingBox(int x, int y)
         {
-            return sprites.OrderBy(x => x.Z).ThenBy(x => x.Id);
+            var offsetX = X + x;
+            var offsetY = Y + y;
+            float top = offsetY;
+            float left = offsetX;
+            float bottom = offsetY;
+            float right = offsetX;
+            foreach (var sprite in Sprites)
+            {
+                if (sprite is not IBoundable)
+                {
+                    continue;
+                }
+                var boundable = (IBoundable)sprite;
+                var boudingBox = boundable.GetBoundingBox(offsetX, offsetY);
+                if (boudingBox.Top < top)
+                {
+                    top = boudingBox.Top;
+                }
+                if (boudingBox.Left < left)
+                {
+                    left = boudingBox.Left;
+                }
+                if (boudingBox.Bottom < bottom)
+                {
+                    right = boudingBox.Right;
+                }
+                if (boudingBox.Right < right)
+                {
+                    right = boudingBox.Right;
+                }
+            }
+            return new SKRect() { Top = top, Left = left, Bottom = bottom, Right = right };
+        }
+
+        public void Update(int delta)
+        {
+            foreach (var sprite in Sprites)
+            {
+                if (sprite is not IUpdatable)
+                {
+                    continue;
+                }
+                var updatable = (IUpdatable)sprite;
+                updatable.Update(delta);
+            }
         }
     }
 }
