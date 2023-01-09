@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
-using SamllHax.MapleSyrup.Data;
 using SamllHax.MapleSyrup.Interfaces.Data;
 using SamllHax.MapleSyrup.Interfaces.Providers;
+using SamllHax.MapleSyrup.Providers.Dumper.Data;
 using SamllHax.MapleSyrup.Providers.Dumper.Extensions;
 using SamllHax.MapleSyrup.Providers.Dumper.Nodes;
 using System;
@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace SamllHax.MapleSyrup
+namespace SamllHax.MapleSyrup.Providers.Dumper
 {
     public class DumperResourceProvider : IResourceProvider
     {
@@ -60,7 +60,7 @@ namespace SamllHax.MapleSyrup
                     node = new WzDirectory();
                     break;
                 case "extended":
-                    node = new WzDirectory();
+                    node = new WzExtended();
                     break;
                 case "int":
                     node = new WzIntValue() { Value = xml.Attribute("value").ValueAsInt() };

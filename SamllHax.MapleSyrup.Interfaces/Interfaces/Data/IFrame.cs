@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SamllHax.MapleSyrup.Data;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,7 +10,7 @@ namespace SamllHax.MapleSyrup.Interfaces.Data
         int Width { get; }
         int Height { get; }
         IVector Origin { get; }
-        int Z { get; }
+        int? Z { get; }
         int? Delay { get; }
         int? Alpha0 { get; }
         int? Alpha1 { get; }
@@ -17,6 +18,6 @@ namespace SamllHax.MapleSyrup.Interfaces.Data
         /// <summary>
         /// Foothold as used by tiles
         /// </summary>
-        List<IVector> Foothold { get; }
+        List<IFoothold> Footholds { get; }
     }
 }

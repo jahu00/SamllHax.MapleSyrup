@@ -10,6 +10,8 @@ using SamllHax.MapleSyrup.Extensions;
 using SkiaSharp;
 using Microsoft.Extensions.Configuration;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using SamllHax.MapleSyrup.Interfaces.Providers;
+using SamllHax.MapleSyrup.Interfaces.Data;
 
 namespace SamllHax.MapleSyrup
 {
@@ -19,7 +21,7 @@ namespace SamllHax.MapleSyrup
         private readonly IConfiguration _configuration;
 
         //public Dictionary<string, WzTileSet> TileSetCatche { get; } = new Dictionary<string, WzTileSet>();
-        public Dictionary<string, WzEntity> EntityCache { get; } = new Dictionary<string, WzEntity>();
+        public Dictionary<string, IEntity> EntityCache { get; } = new Dictionary<string, IEntity>();
         public Dictionary<string, SKBitmap> ImageCatche { get; } = new Dictionary<string, SKBitmap>();
 
         public ResourceManager(IConfiguration configuration, IResourceProvider resourceProvider)
@@ -28,24 +30,24 @@ namespace SamllHax.MapleSyrup
             _resourceProvider = resourceProvider;
         }
 
-        public WzMap GetMap(int id)
+        public IMap GetMap(int id)
         {
             return GetEntityFromCache($"Map-{id}", () => _resourceProvider.GetMap(id));
         }
 
-        public WzTileSet GetTileSet(string name)
+        public IEntityDirectory<IFrame> GetTileSet(string name)
         {
             return GetEntityFromCache($"TileSet-{name}", () => _resourceProvider.GetTileSet(name));
         }
 
-        public WzObjectGroup GetObjectGroup(string name)
+        public IEntityDirectory<IAnimation> GetObjectDirectory(string name)
         {
-            return GetEntityFromCache($"ObjectGroup-{name}", () => _resourceProvider.GetObjectGroup(name));
+            return GetEntityFromCache($"ObjectGroup-{name}", () => _resourceProvider.GetObjectDirectory(name));
         }
 
-        public T GetEntityFromCache<T>(string key, Func<T> fallback) where T : WzEntity
+        public T GetEntityFromCache<T>(string key, Func<T> fallback) where T : IEntity
         {
-            WzEntity entity;
+            IEntity entity;
             if (!EntityCache.TryGetValue(key, out entity))
             {
                 entity = fallback();
@@ -54,16 +56,16 @@ namespace SamllHax.MapleSyrup
             return (T)entity;
         }
 
-        public SKBitmap GetTileImage(string tileSetName, string tileName, int variant)
+        public SKBitmap GetTileImage(string tileSetName, string[] path)
         {
-            var key = $"TileSet-{tileSetName}-{tileName}-{variant}";
-            return GetImageFromCache(key, () => _resourceProvider.GetTileImage(tileSetName, tileName, variant));
+            var key = $"TileSet-{tileSetName}-{string.Join("-", path)}";
+            return GetImageFromCache(key, () => _resourceProvider.GetTileImage(tileSetName, path));
         }
 
-        public SKBitmap GetObjectImage(string objectGroupName, string objectName, string subSetName, string partId, string frameId)
+        public SKBitmap GetObjectImage(string objectDirectoryName, string[] path, string frameId)
         {
-            var key = $"Obj-{objectGroupName}-{ objectName}-{ subSetName}-{ partId}-{frameId}";
-            return GetImageFromCache(key, () => _resourceProvider.GetObjectImage(objectGroupName, objectName, subSetName, partId, frameId));
+            var key = $"Obj-{objectDirectoryName}-{string.Join("-", path)}-{frameId}";
+            return GetImageFromCache(key, () => _resourceProvider.GetObjectImage(objectDirectoryName, path, frameId));
         }
 
         public SKBitmap GetImageFromCache(string key, Func<Stream> fallback)

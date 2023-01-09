@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SamllHax.MapleSyrup.Data
+namespace SamllHax.MapleSyrup.Draw
 {
     public class DrawableBase
     {

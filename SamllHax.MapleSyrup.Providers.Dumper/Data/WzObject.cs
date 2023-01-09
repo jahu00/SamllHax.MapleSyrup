@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using SamllHax.MapleSyrup.Interfaces.Data;
 using SamllHax.MapleSyrup.Providers.Dumper.Nodes;
 
-namespace SamllHax.MapleSyrup.Data
+namespace SamllHax.MapleSyrup.Providers.Dumper.Data
 {
     public class WzObject: WzEntity, IAnimation
     {
@@ -36,7 +36,7 @@ namespace SamllHax.MapleSyrup.Data
                 Frames.Add(frame.Name, frame);
             }
 
-            Seat = _directory.GetSingleOrDefaultChild<WzExtended>("seat")?.Children.Select(x => (IVector)x).ToList();
+            Seat = _directory.GetSingleOrDefaultChild<WzDirectory>("seat")?.Children.Select(x => (IVector)x).ToList();
             Foothold = _directory.GetSingleOrDefaultChild<WzExtended>("foothold")?.Children.Select(x => (IVector)x).ToList();
             Blend = _directory.GetSingleOrDefaultChild<WzIntValue>("blend")?.Value;
             ZigZag = _directory.GetSingleOrDefaultChild<WzIntValue>("zigzag")?.Value;

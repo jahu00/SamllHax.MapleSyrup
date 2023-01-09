@@ -13,7 +13,7 @@ namespace SamllHax.MapleSyrup.Data
 
         public IVector Origin { get; set; }
 
-        public int Z { get; set; }
+        public int? Z { get; set; }
 
         public int? Delay { get; set; }
 
@@ -21,7 +21,7 @@ namespace SamllHax.MapleSyrup.Data
 
         public int? Alpha1 { get; set; }
 
-        public List<IVector> Foothold { get; set; }
+        public List<IFoothold> Footholds { get; set; }
 
     }
 }

@@ -1,18 +1,13 @@
-﻿using SamllHax.MapleSyrup.Data;
+﻿using SamllHax.MapleSyrup.Draw;
+using SamllHax.MapleSyrup.Interfaces.Data;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SamllHax.MapleSyrup
 {
     public class MapInstance: DrawableBase, IDrawable, IUpdatable
     {
         private readonly ResourceManager _resourceManager;
-        private readonly WzMap _map;
+        private readonly IMap _map;
         private readonly SpriteCollection _layers;
         public SKRect BoudingBox { get; private set; }
 
@@ -25,13 +20,13 @@ namespace SamllHax.MapleSyrup
 
         }
 
-        private List<IDrawable> BuildLayers(IEnumerable<WzMapLayer> mapLayers)
+        private List<IDrawable> BuildLayers(IEnumerable<IMapLayer> mapLayers)
         {
             var layers = mapLayers.Select(layer => BuildLayer(layer)).ToList();
             return layers;
         }
 
-        private IDrawable BuildLayer(WzMapLayer layer)
+        private IDrawable BuildLayer(IMapLayer layer)
         {
             var sprites = new List<IDrawable>();
             if (layer.Objects.Count > 0)
@@ -47,7 +42,7 @@ namespace SamllHax.MapleSyrup
             return new SpriteCollection(){ Sprites = sprites };
         }
 
-        private IDrawable GetTileSprites(WzMapLayer layer)
+        private IDrawable GetTileSprites(IMapLayer layer)
         {
             // TODO: Replace by mesh
             var tileSet = _resourceManager.GetTileSet(layer.TileSetName);
@@ -55,50 +50,48 @@ namespace SamllHax.MapleSyrup
             (
                 tile =>
                 {
-                    var tileBitmap = _resourceManager.GetTileImage(layer.TileSetName, tile.Name, tile.Variant);
-                    var tileData = tileSet.Tiles[tile.Name].Variants[tile.Variant];
+                    var tileBitmap = _resourceManager.GetTileImage(layer.TileSetName, tile.Path);
+                    var tileData = tileSet.GetEntityByPath(tile.Path);
                     return (IDrawable)new Sprite() { Bitmap = tileBitmap, X = tile.X - tileData.Origin.X, Y = tile.Y - tileData.Origin.Y };
                 }
             ).ToList();
             return new SpriteCollection(){ Sprites = sprites };
         }
 
-        private IDrawable GetObjectSprites(WzMapLayer layer)
+        private IDrawable GetObjectSprites(IMapLayer layer)
         {
             var sprites = layer.Objects.OrderBy(x => x.Z).Select
             (
                 obj =>
                 {
-                    var objectGroupData = _resourceManager.GetObjectGroup(obj.GroupName);
-                    var objectData = objectGroupData.Objects[obj.Name];
-                    var objectSubsetData = objectData.Subsets[obj.SubsetName];
-                    var objectPartData = objectSubsetData.Parts[obj.PartId];
-                    if (objectPartData.Frames.Count == 1)
+                    var objectDirectory = _resourceManager.GetObjectDirectory(obj.DirectoryName);
+                    var objectData = objectDirectory.GetEntityByPath(obj.Path);
+                    if (objectData.Frames.Count == 1)
                     {
-                        var frameId = objectPartData.Frames.Keys.First();
-                        return GetObjectFrame(obj, objectPartData, frameId) as IDrawable;
+                        var frameId = objectData.Frames.Keys.First();
+                        return GetObjectFrame(obj, objectData, frameId) as IDrawable;
                     }
-                    return GetAnimatedObject(obj, objectPartData) as IDrawable;
+                    return GetAnimatedObject(obj, objectData) as IDrawable;
                 }
             ).ToList();
             return new SpriteCollection() { Sprites = sprites };
         }
 
-        private Sprite GetObjectFrame(WzMapObject obj, WzObjectPart objectPartData, string frameId)
+        private Sprite GetObjectFrame(IMapObject obj, IAnimation objectPartData, string frameId)
         {
             var frameData = objectPartData.Frames[frameId];
             return GetObjectFrame(obj, frameData);
         }
 
-        private Sprite GetObjectFrame(WzMapObject obj, WzFrame frameData)
+        private Sprite GetObjectFrame(IMapObject obj, IFrame frameData)
         {
-            var objectBitmap = _resourceManager.GetObjectImage(obj.GroupName, obj.Name, obj.SubsetName, obj.PartId, frameData.Id);
+            var objectBitmap = _resourceManager.GetObjectImage(obj.DirectoryName, obj.Path, frameData.Name);
             return new Sprite() { Bitmap = objectBitmap, X = obj.X - frameData.Origin.X, Y = obj.Y - frameData.Origin.Y };
         }
 
-        private AnimatedSprite GetAnimatedObject(WzMapObject obj, WzObjectPart objectPartData)
+        private AnimatedSprite GetAnimatedObject(IMapObject obj, IAnimation objectData)
         {
-            var frames = objectPartData.Frames.OrderBy(x => Convert.ToInt32(x.Key)).Select(x => x.Value).Select
+            var frames = objectData.Frames.OrderBy(x => Convert.ToInt32(x.Key)).Select(x => x.Value).Select
             (
                 (frameData) => new Frame()
                 {

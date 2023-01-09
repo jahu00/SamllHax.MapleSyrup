@@ -2,7 +2,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SkiaSharp;
+using SamllHax.MapleSyrup.Interfaces.Providers;
+using SamllHax.MapleSyrup.Providers.Dumper;
 
 namespace SamllHax.MapleSyrup
 {

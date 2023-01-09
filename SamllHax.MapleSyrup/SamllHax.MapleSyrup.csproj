@@ -15,6 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SamllHax.MapleSyrup.Interfaces\SamllHax.MapleSyrup.Interfaces.csproj" />
+    <ProjectReference Include="..\SamllHax.MapleSyrup.Providers.Dumper\SamllHax.MapleSyrup.Providers.Dumper.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="appsettings.default.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

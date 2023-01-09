@@ -1,6 +1,6 @@
 ﻿using SkiaSharp;
 
-namespace SamllHax.MapleSyrup.Data
+namespace SamllHax.MapleSyrup.Draw
 {
     public class Sprite: DrawableBase, IDrawable, IBoundable
     {
