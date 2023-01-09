@@ -45,7 +45,7 @@ namespace SamllHax.MapleSyrup
                 foreach (var tile in layer.Tiles.OrderBy(x => x.Z))
                 {
                     var tileBitmap = _resourceManager.GetTileImage(layer.TileSetName, tile.Name, tile.Variant);
-                    var tileData = tileSet.Tiles[tile.Name].Tiles[tile.Variant];
+                    var tileData = tileSet.Tiles[tile.Name].Variants[tile.Variant];
                     //var z = tile.Z
                     tileSprites.Add(new Sprite() { Bitmap = tileBitmap, X = tile.X - tileData.Origin.X, Y = tile.Y - tileData.Origin.Y });
                     //canvas.DrawBitmap(tileBitmap, tile.X - tileData.Origin.X + x, tile.Y - tileData.Origin.Y + y);

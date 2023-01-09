@@ -56,7 +56,7 @@ namespace SamllHax.MapleSyrup
                 tile =>
                 {
                     var tileBitmap = _resourceManager.GetTileImage(layer.TileSetName, tile.Name, tile.Variant);
-                    var tileData = tileSet.Tiles[tile.Name].Tiles[tile.Variant];
+                    var tileData = tileSet.Tiles[tile.Name].Variants[tile.Variant];
                     return (IDrawable)new Sprite() { Bitmap = tileBitmap, X = tile.X - tileData.Origin.X, Y = tile.Y - tileData.Origin.Y };
                 }
             ).ToList();

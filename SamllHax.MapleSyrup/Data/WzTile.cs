@@ -14,11 +14,11 @@ namespace SamllHax.MapleSyrup.Data
             {
                 var tileVariant = new WzFrame((WzCanvas)tileVariantNode);
                 var tileVariantId = Convert.ToInt32(tileVariant.Id);
-                Tiles.Add(tileVariantId, tileVariant);
+                Variants.Add(tileVariantId, tileVariant);
             }
         }
 
-        public Dictionary<int, WzFrame> Tiles { get; } = new Dictionary<int, WzFrame>();
+        public Dictionary<int, WzFrame> Variants { get; } = new Dictionary<int, WzFrame>();
         public string Name { get; set; }
     }
 }
