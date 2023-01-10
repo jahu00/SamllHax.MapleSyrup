@@ -20,6 +20,7 @@ namespace SamllHax.MapleSyrup.IO
         private GRBackendRenderTarget renderTarget;
         private SKSurface surface;
         private SKCanvas canvas;
+        private readonly IConfiguration _windowConfiguration;
         private readonly IConfiguration _configuration;
         private readonly ResourceManager _resourceManager;
 
@@ -30,6 +31,7 @@ namespace SamllHax.MapleSyrup.IO
         public Window(IConfiguration configuration, ResourceManager resourceManager): base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
         {
             _configuration = configuration;
+            _windowConfiguration = configuration.GetSection("Window");
             _resourceManager = resourceManager;
             VSync = VSyncMode.On;
         }
@@ -87,9 +89,14 @@ namespace SamllHax.MapleSyrup.IO
 
         protected override void OnResize(ResizeEventArgs args)
         {
-            /*renderTarget = new GRBackendRenderTarget(ClientSize.X, ClientSize.Y, 0, 8, new GRGlFramebufferInfo(0, (uint)SizedInternalFormat.Rgba8));
+            renderTarget = new GRBackendRenderTarget(args.Width, args.Height, 0, 8, new GRGlFramebufferInfo(0, (uint)SizedInternalFormat.Rgba8));
+            //renderTarget = new GRBackendRenderTarget(ClientSize.X, ClientSize.Y, 0, 8, new GRGlFramebufferInfo(0, (uint)SizedInternalFormat.Rgba8));
+            //renderTarget = new GRBackendRenderTarget(Size.X, Size.Y, 0, 8, new GRGlFramebufferInfo(0, (uint)SizedInternalFormat.Rgba8));
             surface = SKSurface.Create(grContext, renderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
-            canvas = surface.Canvas;*/
+            canvas = surface.Canvas;
+            var xScale = (float)args.Width / (float)_windowConfiguration.GetValue<int>("Width");
+            var yScale = (float)args.Height / (float)_windowConfiguration.GetValue<int>("Height");
+            canvas.Scale(Math.Min(xScale, yScale));
             base.OnResize(args);
         }
     }

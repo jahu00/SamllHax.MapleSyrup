@@ -32,9 +32,13 @@ namespace SamllHax.MapleSyrup.Draw
 
         public void Update(int delta)
         {
-            Frame currentFrame;
-            do
+            if (delta < 0)
             {
+                return;
+            }
+            Frame currentFrame;
+            /*do
+            {*/
                 currentFrame = Frames[FrameId];
                 Timer += delta;
                 if (currentFrame.Delay > Timer)
@@ -47,7 +51,7 @@ namespace SamllHax.MapleSyrup.Draw
                 {
                     FrameId = 0;
                 }
-            } while (Timer >= currentFrame.Delay);
+            /*} while (Timer >= currentFrame.Delay);*/
         }
     }
 }
