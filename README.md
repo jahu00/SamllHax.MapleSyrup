@@ -1,7 +1,7 @@
 # SamllHax.MapleSyrup
 Because there were not enough unfinished custom MapleStory clients, I decided to make my own.
 
-The goal is to have single, clean, cross-platform application that does everything to achieve a single player Maple Story experience, whit no or minimal setup.
+The goal is to have single, clean, cross-platform application that does everything to achieve a single player Maple Story experience, with no or minimal setup.
 Ideally this client would directly use provided wz files, but I might go with a different format that requires a conversion first.
 Currently I just use files dumped by <a href="https://github.com/Xterminatorz/WZ-Dumper">WZ.Dumper</a>
 
