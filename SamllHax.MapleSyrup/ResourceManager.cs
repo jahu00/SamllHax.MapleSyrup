@@ -68,6 +68,12 @@ namespace SamllHax.MapleSyrup
             return GetImageFromCache(key, () => _resourceProvider.GetObjectImage(objectDirectoryName, path, frameId));
         }
 
+        public SKBitmap GetMobImage(string mobId, string animation, string frameId)
+        {
+            var key = $"Mob-{mobId}-{animation}-{frameId}";
+            return GetImageFromCache(key, () => _resourceProvider.GetMobImage(mobId, animation, frameId));
+        }
+
         public SKBitmap GetImageFromCache(string key, Func<Stream> fallback)
         {
             SKBitmap bitmap;

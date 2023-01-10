@@ -9,7 +9,8 @@ namespace SamllHax.MapleSyrup
         private readonly ResourceManager _resourceManager;
         private readonly IMap _map;
         private readonly SpriteCollection _layers;
-        public SKRect BoudingBox { get; private set; }
+        public Sprite Character { get; private set; }
+        public SKRectI BoudingBox { get; private set; }
 
         public MapInstance(ResourceManager resourceManager, int mapId)
         {
@@ -17,7 +18,16 @@ namespace SamllHax.MapleSyrup
             _map = _resourceManager.GetMap(mapId);
             _layers = new SpriteCollection() { Sprites = BuildLayers(_map.Layers) };
             BoudingBox = _layers.GetBoundingBox(0, 0);
-
+            /*X = -1 * Convert.ToInt32(BoudingBox.MidX);
+            Y = -1 * Convert.ToInt32(BoudingBox.MidY);*/
+            /*X = -1 * Convert.ToInt32(BoudingBox.Left);
+            Y = -1 * Convert.ToInt32(BoudingBox.Top);*/
+            Character = new Sprite()
+            {
+                X = BoudingBox.Left,
+                Y = BoudingBox.MidY,
+                Bitmap = _resourceManager.GetMobImage("0100100", "stand", "0")
+            };
         }
 
         private List<IDrawable> BuildLayers(IEnumerable<IMapLayer> mapLayers)
@@ -104,7 +114,11 @@ namespace SamllHax.MapleSyrup
 
         public void Draw(SKCanvas canvas, int x, int y)
         {
-            _layers.Draw(canvas, X + x, Y + y);
+            var offsetX = X + x;
+            var offsetY = Y + y;
+            _layers.Draw(canvas, offsetX, offsetY);
+            Character.Draw(canvas, offsetX, offsetY);
+            canvas.DrawRect(new SKRectI(offsetX + BoudingBox.Left, offsetY + BoudingBox.Top, offsetX + BoudingBox.Right, offsetY + BoudingBox.Bottom), new SKPaint() { Color = SKColors.Red, Style = SKPaintStyle.Stroke });
         }
 
         public void Update(int delta)

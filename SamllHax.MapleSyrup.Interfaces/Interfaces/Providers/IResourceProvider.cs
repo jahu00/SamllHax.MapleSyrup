@@ -15,5 +15,7 @@ namespace SamllHax.MapleSyrup.Interfaces.Providers
         Stream GetTileImage(string tileSetName, string[] path);
 
         Stream GetObjectImage(string objectDirectoryName, string[] path, string frameId);
+
+        Stream GetMobImage(string mobId, string animation, string frameId);
     }
 }

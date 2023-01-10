@@ -1,15 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using SamllHax.MapleSyrup.Data;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-//using GLFW;
 
 namespace SamllHax.MapleSyrup.IO
 {
@@ -23,6 +19,9 @@ namespace SamllHax.MapleSyrup.IO
         private readonly IConfiguration _windowConfiguration;
         private readonly IConfiguration _configuration;
         private readonly ResourceManager _resourceManager;
+        private float Scale = 1;
+        private Vector2i InternalResolution;
+
 
         private double timer = 0;
 
@@ -34,6 +33,7 @@ namespace SamllHax.MapleSyrup.IO
             _windowConfiguration = configuration.GetSection("Window");
             _resourceManager = resourceManager;
             VSync = VSyncMode.On;
+            InternalResolution = new Vector2i(Size.X, Size.Y);
         }
 
         protected override void OnLoad()
@@ -63,7 +63,43 @@ namespace SamllHax.MapleSyrup.IO
             //var delta = Convert.ToInt32(args.Time * 1000d);
             //timer += args.Time;
             canvas.Clear(SKColors.CornflowerBlue);
-            _mapInstance.Draw(canvas, 0, 0);
+            int mapX;
+            int mapY;
+            if (_mapInstance.BoudingBox.Width <= InternalResolution.X)
+            {
+                mapX = _mapInstance.BoudingBox.MidX - (InternalResolution.X / 2);
+            }
+            else
+            {
+                mapX = _mapInstance.Character.X - (InternalResolution.X / 2);
+                if (mapX < _mapInstance.BoudingBox.Left)
+                {
+                    mapX = _mapInstance.BoudingBox.Left;
+                }
+                else if (mapX > _mapInstance.BoudingBox.Right - InternalResolution.X)
+                {
+                    mapX = _mapInstance.BoudingBox.Right - InternalResolution.X;
+                }
+            }
+
+            if (_mapInstance.BoudingBox.Height <= InternalResolution.Y)
+            {
+                mapY = _mapInstance.BoudingBox.MidY - (InternalResolution.Y / 2);
+            }
+            else
+            {
+                mapY = _mapInstance.Character.Y - (InternalResolution.Y / 2);
+                if (mapY < _mapInstance.BoudingBox.Top)
+                {
+                    mapY = _mapInstance.BoudingBox.Top;
+                }
+                else if (mapY > _mapInstance.BoudingBox.Bottom - InternalResolution.Y)
+                {
+                    mapY = _mapInstance.BoudingBox.Bottom - InternalResolution.Y;
+                }
+            }
+
+            _mapInstance.Draw(canvas, -1 * mapX, -1 * mapY);
             canvas.Flush();
             SwapBuffers();
             var fps = Convert.ToInt32(1 / args.Time);
@@ -83,7 +119,22 @@ namespace SamllHax.MapleSyrup.IO
                 // If it is, close the window.
                 Close();
             }
-
+            if (KeyboardState.IsKeyDown(Keys.Down))
+            {
+                _mapInstance.Character.Y += 1;
+            }
+            if (KeyboardState.IsKeyDown(Keys.Up))
+            {
+                _mapInstance.Character.Y -= 1;
+            }
+            if (KeyboardState.IsKeyDown(Keys.Left))
+            {
+                _mapInstance.Character.X -= 1;
+            }
+            if (KeyboardState.IsKeyDown(Keys.Right))
+            {
+                _mapInstance.Character.X += 1;
+            }
             base.OnUpdateFrame(args);
         }
 
@@ -96,7 +147,9 @@ namespace SamllHax.MapleSyrup.IO
             canvas = surface.Canvas;
             var xScale = (float)args.Width / (float)_windowConfiguration.GetValue<int>("Width");
             var yScale = (float)args.Height / (float)_windowConfiguration.GetValue<int>("Height");
-            canvas.Scale(Math.Min(xScale, yScale));
+            Scale = Math.Min(xScale, yScale);
+            InternalResolution = new Vector2i(Convert.ToInt32(args.Width / Scale), Convert.ToInt32(args.Height / Scale));
+            canvas.Scale(Scale);
             base.OnResize(args);
         }
     }

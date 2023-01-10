@@ -22,7 +22,7 @@ namespace SamllHax.MapleSyrup.Draw
             currentFrame.Sprite.Draw(canvas, offsetX, offsetY);
         }
 
-        public SKRect GetBoundingBox(int x, int y)
+        public SKRectI GetBoundingBox(int x, int y)
         {
             var offsetX = X + x;
             var offsetY = Y + y;

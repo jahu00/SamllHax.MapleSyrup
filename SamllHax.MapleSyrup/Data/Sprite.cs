@@ -11,14 +11,14 @@ namespace SamllHax.MapleSyrup.Draw
             canvas.DrawBitmap(Bitmap, X + x, Y + y);
         }
 
-        public SKRect GetBoundingBox(int x, int y)
+        public SKRectI GetBoundingBox(int x, int y)
         {
             var offsetX = X + x;
             var offsetY = Y + y;
-            var boundingBox = new SKRect()
+            var boundingBox = new SKRectI()
             {
-                Top = offsetX,
-                Left = offsetY,
+                Top = offsetY,
+                Left = offsetX,
                 Bottom = offsetY + Bitmap.Height,
                 Right = offsetX + Bitmap.Width,
             };

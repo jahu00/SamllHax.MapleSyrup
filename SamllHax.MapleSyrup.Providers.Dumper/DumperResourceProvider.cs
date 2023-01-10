@@ -114,6 +114,12 @@ namespace SamllHax.MapleSyrup.Providers.Dumper
             return GetImage(relativeFilePath);
         }
 
+        public Stream GetMobImage(string mobId, string animation, string frameId)
+        {
+            var relativeFilePath = $"Mob.wz/{mobId}.img/{animation}/{frameId}";
+            return GetImage(relativeFilePath);
+        }
+
         public Stream GetImage(string relativeFilePath)
         {
 

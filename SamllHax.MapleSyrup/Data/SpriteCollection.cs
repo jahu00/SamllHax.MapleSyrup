@@ -23,14 +23,14 @@ namespace SamllHax.MapleSyrup.Draw
 
         }
 
-        public SKRect GetBoundingBox(int x, int y)
+        public SKRectI GetBoundingBox(int x, int y)
         {
             var offsetX = X + x;
             var offsetY = Y + y;
-            float top = offsetY;
-            float left = offsetX;
-            float bottom = offsetY;
-            float right = offsetX;
+            var top = offsetY;
+            var left = offsetX;
+            var bottom = offsetY;
+            var right = offsetX;
             foreach (var sprite in Sprites)
             {
                 if (sprite is not IBoundable)
@@ -47,16 +47,16 @@ namespace SamllHax.MapleSyrup.Draw
                 {
                     left = boudingBox.Left;
                 }
-                if (boudingBox.Bottom < bottom)
+                if (boudingBox.Bottom > bottom)
                 {
-                    right = boudingBox.Right;
+                    bottom = boudingBox.Bottom;
                 }
-                if (boudingBox.Right < right)
+                if (boudingBox.Right > right)
                 {
                     right = boudingBox.Right;
                 }
             }
-            return new SKRect() { Top = top, Left = left, Bottom = bottom, Right = right };
+            return new SKRectI() { Top = top, Left = left, Bottom = bottom, Right = right };
         }
 
         public void Update(int delta)
