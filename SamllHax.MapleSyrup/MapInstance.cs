@@ -2,30 +2,26 @@
 using SamllHax.MapleSyrup.Interfaces.Data;
 using SkiaSharp;
 
-namespace SamllHax.MapleSyrup
+namespace SamllHax.MapleSyrup.Components
 {
-    public class MapInstance: DrawableBase, IDrawable, IUpdatable
+    public class MapInstance: DrawableBase, IDrawable, IUpdatable, IBoundable
     {
         private readonly ResourceManager _resourceManager;
         private readonly IMap _map;
         private readonly SpriteCollection _layers;
         public Sprite Character { get; private set; }
-        public SKRectI BoudingBox { get; private set; }
+        public SKRectI BoundingBox { get; private set; }
 
         public MapInstance(ResourceManager resourceManager, int mapId)
         {
             _resourceManager = resourceManager;
             _map = _resourceManager.GetMap(mapId);
             _layers = new SpriteCollection() { Sprites = BuildLayers(_map.Layers) };
-            BoudingBox = _layers.GetBoundingBox(0, 0);
-            /*X = -1 * Convert.ToInt32(BoudingBox.MidX);
-            Y = -1 * Convert.ToInt32(BoudingBox.MidY);*/
-            /*X = -1 * Convert.ToInt32(BoudingBox.Left);
-            Y = -1 * Convert.ToInt32(BoudingBox.Top);*/
+            BoundingBox = _layers.GetBoundingBox(0, 0);
             Character = new Sprite()
             {
-                X = BoudingBox.Left,
-                Y = BoudingBox.MidY,
+                X = BoundingBox.Left,
+                Y = BoundingBox.MidY,
                 Bitmap = _resourceManager.GetMobImage("0100100", "stand", "0")
             };
         }
@@ -118,12 +114,19 @@ namespace SamllHax.MapleSyrup
             var offsetY = Y + y;
             _layers.Draw(canvas, offsetX, offsetY);
             Character.Draw(canvas, offsetX, offsetY);
-            canvas.DrawRect(new SKRectI(offsetX + BoudingBox.Left, offsetY + BoudingBox.Top, offsetX + BoudingBox.Right, offsetY + BoudingBox.Bottom), new SKPaint() { Color = SKColors.Red, Style = SKPaintStyle.Stroke });
+            canvas.DrawRect(new SKRectI(offsetX + BoundingBox.Left, offsetY + BoundingBox.Top, offsetX + BoundingBox.Right, offsetY + BoundingBox.Bottom), new SKPaint() { Color = SKColors.Red, Style = SKPaintStyle.Stroke });
         }
 
         public void Update(int delta)
         {
             _layers.Update(delta);
+        }
+
+        public SKRectI GetBoundingBox(int x, int y)
+        {
+            var offsetX = X + x;
+            var offsetY = Y + y;
+            return new SKRectI(BoundingBox.Left + offsetX, BoundingBox.Top + offsetY, BoundingBox.Right + offsetX, BoundingBox.Bottom + offsetY);
         }
     }
 }

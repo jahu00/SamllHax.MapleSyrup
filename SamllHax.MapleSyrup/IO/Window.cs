@@ -4,12 +4,14 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using SamllHax.MapleSyrup.Components;
 using SamllHax.MapleSyrup.Data;
+using SamllHax.MapleSyrup.Draw;
 using SkiaSharp;
 
 namespace SamllHax.MapleSyrup.IO
 {
-    public class Window: GameWindow
+    public class Window: GameWindow, IBoundable
     {
         private GRGlInterface grgInterface;
         private GRContext grContext;
@@ -21,19 +23,22 @@ namespace SamllHax.MapleSyrup.IO
         private readonly ResourceManager _resourceManager;
         private float Scale = 1;
         private Vector2i InternalResolution;
+        private SKRectI BoundingBox;
 
 
         private double timer = 0;
 
         private MapInstance _mapInstance;
+        private SceneCamera<MapInstance> _camera;
 
         public Window(IConfiguration configuration, ResourceManager resourceManager): base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
         {
             _configuration = configuration;
             _windowConfiguration = configuration.GetSection("Window");
             _resourceManager = resourceManager;
-            VSync = VSyncMode.On;
+            //VSync = VSyncMode.On;
             InternalResolution = new Vector2i(Size.X, Size.Y);
+            BoundingBox = new SKRectI(0, 0, InternalResolution.X, InternalResolution.Y);
         }
 
         protected override void OnLoad()
@@ -47,6 +52,7 @@ namespace SamllHax.MapleSyrup.IO
             canvas = surface.Canvas;
 
             _mapInstance = new MapInstance(_resourceManager, 100000000);
+            _camera = new SceneCamera<MapInstance>() { Container = this, Scene = _mapInstance, ObjectWithCamera = _mapInstance.Character };
         }
 
         protected override void OnUnload()
@@ -63,43 +69,7 @@ namespace SamllHax.MapleSyrup.IO
             //var delta = Convert.ToInt32(args.Time * 1000d);
             //timer += args.Time;
             canvas.Clear(SKColors.CornflowerBlue);
-            int mapX;
-            int mapY;
-            if (_mapInstance.BoudingBox.Width <= InternalResolution.X)
-            {
-                mapX = _mapInstance.BoudingBox.MidX - (InternalResolution.X / 2);
-            }
-            else
-            {
-                mapX = _mapInstance.Character.X - (InternalResolution.X / 2);
-                if (mapX < _mapInstance.BoudingBox.Left)
-                {
-                    mapX = _mapInstance.BoudingBox.Left;
-                }
-                else if (mapX > _mapInstance.BoudingBox.Right - InternalResolution.X)
-                {
-                    mapX = _mapInstance.BoudingBox.Right - InternalResolution.X;
-                }
-            }
-
-            if (_mapInstance.BoudingBox.Height <= InternalResolution.Y)
-            {
-                mapY = _mapInstance.BoudingBox.MidY - (InternalResolution.Y / 2);
-            }
-            else
-            {
-                mapY = _mapInstance.Character.Y - (InternalResolution.Y / 2);
-                if (mapY < _mapInstance.BoudingBox.Top)
-                {
-                    mapY = _mapInstance.BoudingBox.Top;
-                }
-                else if (mapY > _mapInstance.BoudingBox.Bottom - InternalResolution.Y)
-                {
-                    mapY = _mapInstance.BoudingBox.Bottom - InternalResolution.Y;
-                }
-            }
-
-            _mapInstance.Draw(canvas, -1 * mapX, -1 * mapY);
+            _camera.Draw(canvas, 0, 0);
             canvas.Flush();
             SwapBuffers();
             var fps = Convert.ToInt32(1 / args.Time);
@@ -149,8 +119,14 @@ namespace SamllHax.MapleSyrup.IO
             var yScale = (float)args.Height / (float)_windowConfiguration.GetValue<int>("Height");
             Scale = Math.Min(xScale, yScale);
             InternalResolution = new Vector2i(Convert.ToInt32(args.Width / Scale), Convert.ToInt32(args.Height / Scale));
+            BoundingBox = new SKRectI(0, 0, InternalResolution.X, InternalResolution.Y);
             canvas.Scale(Scale);
             base.OnResize(args);
+        }
+
+        public SKRectI GetBoundingBox(int x, int y)
+        {
+            return BoundingBox;
         }
     }
 }
