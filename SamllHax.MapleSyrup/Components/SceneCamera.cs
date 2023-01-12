@@ -8,18 +8,16 @@ using System.Threading.Tasks;
 
 namespace SamllHax.MapleSyrup.Components
 {
-    public class SceneCamera<TScene> : DrawableBase
+    public class SceneCamera<TScene> : DrawableBase, IDrawable
         where TScene: IBoundable, IDrawable
     {
         public IBoundable Container { get; set; }
         public IDrawable ObjectWithCamera { get; set; }
         public TScene Scene { get; set; }
-        public void Draw(SKCanvas canvas, int x, int y)
+        public void Draw(SKCanvas canvas, SKMatrix matrix)
         {
-            var offsetX = X + x;
-            var offsetY = Y + y;
-            var sceneBoundingBox = Scene.GetBoundingBox(0, 0);
-            var containerBoundingBox = Container.GetBoundingBox(0, 0);
+            var sceneBoundingBox = Scene.GetBoundingBox();
+            var containerBoundingBox = Container.GetBoundingBox();
             int sceneX;
             int sceneY;
             if (sceneBoundingBox.Width <= containerBoundingBox.Width)
@@ -28,7 +26,7 @@ namespace SamllHax.MapleSyrup.Components
             }
             else
             {
-                sceneX = ObjectWithCamera.X - (containerBoundingBox.Width / 2);
+                sceneX = (int)ObjectWithCamera.X - (containerBoundingBox.Width / 2);
                 if (sceneX < sceneBoundingBox.Left)
                 {
                     sceneX = sceneBoundingBox.Left;
@@ -45,7 +43,7 @@ namespace SamllHax.MapleSyrup.Components
             }
             else
             {
-                sceneY = ObjectWithCamera.Y - (containerBoundingBox.Height / 2);
+                sceneY = (int)ObjectWithCamera.Y - (containerBoundingBox.Height / 2);
                 if (sceneY < sceneBoundingBox.Top)
                 {
                     sceneY = sceneBoundingBox.Top;
@@ -55,8 +53,8 @@ namespace SamllHax.MapleSyrup.Components
                     sceneY = sceneBoundingBox.Bottom - containerBoundingBox.Height;
                 }
             }
-
-            Scene.Draw(canvas, -1 * sceneX + offsetX, -1 * sceneY + offsetY);
+            matrix = matrix.PostConcat(SKMatrix.CreateTranslation(-1 * sceneX, -1 * sceneY));
+            Scene.Draw(canvas, this.TransformMatrix(matrix));
 
         }
     }

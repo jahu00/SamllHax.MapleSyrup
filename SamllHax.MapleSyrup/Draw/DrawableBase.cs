@@ -6,9 +6,13 @@ using System.Threading.Tasks;
 
 namespace SamllHax.MapleSyrup.Draw
 {
-    public class DrawableBase
+    public abstract class DrawableBase
     {
-        public int X { get; set; } = 0;
-        public int Y { get; set; } = 0;
+        public virtual int OffsetX { get; set; } = 0;
+        public virtual int OffsetY { get; set; } = 0;
+        public virtual float X { get; set; } = 0;
+        public virtual float Y { get; set; } = 0;
+        public virtual float ScaleX { get; set; } = 1;
+        public virtual float ScaleY { get; set; } = 1;
     }
 }

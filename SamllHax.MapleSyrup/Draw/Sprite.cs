@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using SamllHax.MapleSyrup.Extensions;
+using SkiaSharp;
 
 namespace SamllHax.MapleSyrup.Draw
 {
@@ -11,18 +12,14 @@ namespace SamllHax.MapleSyrup.Draw
             canvas.DrawBitmap(Bitmap, X + x, Y + y);
         }
 
-        public SKRectI GetBoundingBox(int x, int y)
+        public void Draw(SKCanvas canvas, SKMatrix matrix)
         {
-            var offsetX = X + x;
-            var offsetY = Y + y;
-            var boundingBox = new SKRectI()
-            {
-                Top = offsetY,
-                Left = offsetX,
-                Bottom = offsetY + Bitmap.Height,
-                Right = offsetX + Bitmap.Width,
-            };
-            return boundingBox;
+            canvas.DrawBitmap(Bitmap, this.TransformMatrix(matrix));
+        }
+
+        public SKRectI GetBoundingBox()
+        {
+            return this.TransformBoundingBox(Bitmap.GetBoundingBox());
         }
     }
 }

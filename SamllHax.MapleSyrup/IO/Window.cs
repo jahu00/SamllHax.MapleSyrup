@@ -24,6 +24,7 @@ namespace SamllHax.MapleSyrup.IO
         private float Scale = 1;
         private Vector2i InternalResolution;
         private SKRectI BoundingBox;
+        private SKMatrix BaseMatrix;
 
 
         private double timer = 0;
@@ -37,21 +38,15 @@ namespace SamllHax.MapleSyrup.IO
             _windowConfiguration = configuration.GetSection("Window");
             _resourceManager = resourceManager;
             //VSync = VSyncMode.On;
-            InternalResolution = new Vector2i(Size.X, Size.Y);
-            BoundingBox = new SKRectI(0, 0, InternalResolution.X, InternalResolution.Y);
         }
 
         protected override void OnLoad()
         {
             base.OnLoad();
-            //Context.MakeCurrent();
             grgInterface = GRGlInterface.Create();
             grContext = GRContext.CreateGl(grgInterface);
-            renderTarget = new GRBackendRenderTarget(ClientSize.X, ClientSize.Y, 0, 8, new GRGlFramebufferInfo(0, (uint)SizedInternalFormat.Rgba8));
-            surface = SKSurface.Create(grContext, renderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
-            canvas = surface.Canvas;
 
-            _mapInstance = new MapInstance(_resourceManager, 100000000);
+            _mapInstance = new MapInstance(_resourceManager, 100000000) { ScaleX = 1f, ScaleY = 1f };
             _camera = new SceneCamera<MapInstance>() { Container = this, Scene = _mapInstance, ObjectWithCamera = _mapInstance.Character };
         }
 
@@ -69,7 +64,7 @@ namespace SamllHax.MapleSyrup.IO
             //var delta = Convert.ToInt32(args.Time * 1000d);
             //timer += args.Time;
             canvas.Clear(SKColors.CornflowerBlue);
-            _camera.Draw(canvas, 0, 0);
+            _camera.Draw(canvas, BaseMatrix);
             canvas.Flush();
             SwapBuffers();
             var fps = Convert.ToInt32(1 / args.Time);
@@ -120,11 +115,12 @@ namespace SamllHax.MapleSyrup.IO
             Scale = Math.Min(xScale, yScale);
             InternalResolution = new Vector2i(Convert.ToInt32(args.Width / Scale), Convert.ToInt32(args.Height / Scale));
             BoundingBox = new SKRectI(0, 0, InternalResolution.X, InternalResolution.Y);
-            canvas.Scale(Scale);
+            //canvas.Scale(Scale);
+            BaseMatrix = SKMatrix.CreateScale(Scale, Scale);
             base.OnResize(args);
         }
 
-        public SKRectI GetBoundingBox(int x, int y)
+        public SKRectI GetBoundingBox()
         {
             return BoundingBox;
         }

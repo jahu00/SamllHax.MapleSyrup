@@ -15,6 +15,7 @@ namespace SamllHax.MapleSyrup
 
         public SKBitmap Render(IMap map, int width, int height, int x, int y)
         {
+            var matrix = SKMatrix.CreateTranslation(x, y);
             var bitmap = new SKBitmap(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
             var canvas = new SKCanvas(bitmap);
             foreach (var layer in map.Layers)
@@ -28,7 +29,7 @@ namespace SamllHax.MapleSyrup
                     var objectBitmap = _resourceManager.GetObjectImage(obj.DirectoryName, obj.Path, objectPartFrameData.Name);
                     objectSprites.Add(new Sprite() { Bitmap = objectBitmap, X = obj.X - objectPartFrameData.Origin.X, Y = obj.Y - objectPartFrameData.Origin.Y });
                 }
-                new SpriteCollection() { Sprites = objectSprites }.Draw(canvas, x, y);
+                new SpriteCollection() { Sprites = objectSprites }.Draw(canvas, matrix);
 
                 var tileSprites = new List<IDrawable>();
                 if (layer.TileSetName == null || layer.Tiles.Count == 0)
@@ -44,7 +45,7 @@ namespace SamllHax.MapleSyrup
                     tileSprites.Add(new Sprite() { Bitmap = tileBitmap, X = tile.X - tileData.Origin.X, Y = tile.Y - tileData.Origin.Y });
                     //canvas.DrawBitmap(tileBitmap, tile.X - tileData.Origin.X + x, tile.Y - tileData.Origin.Y + y);
                 }
-                new SpriteCollection() { Sprites = tileSprites }.Draw(canvas, x, y);
+                new SpriteCollection() { Sprites = tileSprites }.Draw(canvas, matrix);
             }
 
             return bitmap;

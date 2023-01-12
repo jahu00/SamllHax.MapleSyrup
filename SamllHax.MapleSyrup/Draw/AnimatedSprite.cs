@@ -14,20 +14,16 @@ namespace SamllHax.MapleSyrup.Draw
         public List<Frame> Frames { get; set; }
 
 
-        public void Draw(SKCanvas canvas, int x, int y)
+        public void Draw(SKCanvas canvas, SKMatrix matrix)
         {
             var currentFrame = Frames[FrameId];
-            var offsetX = X + x;
-            var offsetY = Y + y;
-            currentFrame.Sprite.Draw(canvas, offsetX, offsetY);
+            currentFrame.Sprite.Draw(canvas, this.TransformMatrix(matrix));
         }
 
-        public SKRectI GetBoundingBox(int x, int y)
+        public SKRectI GetBoundingBox()
         {
-            var offsetX = X + x;
-            var offsetY = Y + y;
             var currentFrame = Frames[FrameId];
-            return currentFrame.Sprite.GetBoundingBox(offsetX, offsetY);
+            return this.TransformBoundingBox(currentFrame.Sprite.GetBoundingBox());
         }
 
         public void Update(int delta)

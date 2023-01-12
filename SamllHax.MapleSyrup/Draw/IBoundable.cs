@@ -9,6 +9,6 @@ namespace SamllHax.MapleSyrup.Draw
 {
     public interface IBoundable
     {
-        SKRectI GetBoundingBox(int x, int y);
+        SKRectI GetBoundingBox();
     }
 }

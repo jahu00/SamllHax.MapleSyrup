@@ -17,7 +17,7 @@ namespace SamllHax.MapleSyrup.Components
             _resourceManager = resourceManager;
             _map = _resourceManager.GetMap(mapId);
             _layers = new SpriteCollection() { Sprites = BuildLayers(_map.Layers) };
-            BoundingBox = _layers.GetBoundingBox(0, 0);
+            BoundingBox = _layers.GetBoundingBox();
             Character = new Sprite()
             {
                 X = BoundingBox.Left,
@@ -108,13 +108,11 @@ namespace SamllHax.MapleSyrup.Components
             return new AnimatedSprite() { Frames = frames };
         }
 
-        public void Draw(SKCanvas canvas, int x, int y)
+        public void Draw(SKCanvas canvas, SKMatrix matrix)
         {
-            var offsetX = X + x;
-            var offsetY = Y + y;
-            _layers.Draw(canvas, offsetX, offsetY);
-            Character.Draw(canvas, offsetX, offsetY);
-            canvas.DrawRect(new SKRectI(offsetX + BoundingBox.Left, offsetY + BoundingBox.Top, offsetX + BoundingBox.Right, offsetY + BoundingBox.Bottom), new SKPaint() { Color = SKColors.Red, Style = SKPaintStyle.Stroke });
+            _layers.Draw(canvas, this.TransformMatrix(matrix));
+            Character.Draw(canvas, this.TransformMatrix(matrix));
+            //canvas.DrawRect(new SKRectI(offsetX + BoundingBox.Left, offsetY + BoundingBox.Top, offsetX + BoundingBox.Right, offsetY + BoundingBox.Bottom), new SKPaint() { Color = SKColors.Red, Style = SKPaintStyle.Stroke });
         }
 
         public void Update(int delta)
@@ -122,11 +120,9 @@ namespace SamllHax.MapleSyrup.Components
             _layers.Update(delta);
         }
 
-        public SKRectI GetBoundingBox(int x, int y)
+        public SKRectI GetBoundingBox()
         {
-            var offsetX = X + x;
-            var offsetY = Y + y;
-            return new SKRectI(BoundingBox.Left + offsetX, BoundingBox.Top + offsetY, BoundingBox.Right + offsetX, BoundingBox.Bottom + offsetY);
+            return BoundingBox;
         }
     }
 }

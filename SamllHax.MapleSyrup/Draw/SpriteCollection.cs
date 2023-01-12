@@ -12,25 +12,21 @@ namespace SamllHax.MapleSyrup.Draw
     {
         public List<IDrawable> Sprites { get; set; } = new List<IDrawable>();
 
-        public void Draw(SKCanvas canvas, int x, int y)
+        public void Draw(SKCanvas canvas, SKMatrix matrix)
         {
-            var offsetX = X + x;
-            var offsetY = Y + y;
             foreach(var sprite in Sprites)
             {
-                sprite.Draw(canvas, offsetX, offsetY);
+                sprite.Draw(canvas, this.TransformMatrix(matrix));
             }
 
         }
 
-        public SKRectI GetBoundingBox(int x, int y)
+        public SKRectI GetBoundingBox()
         {
-            var offsetX = X + x;
-            var offsetY = Y + y;
-            var top = offsetY;
-            var left = offsetX;
-            var bottom = offsetY;
-            var right = offsetX;
+            var top = 0;
+            var left = 0;
+            var bottom = 0;
+            var right = 0;
             foreach (var sprite in Sprites)
             {
                 if (sprite is not IBoundable)
@@ -38,7 +34,7 @@ namespace SamllHax.MapleSyrup.Draw
                     continue;
                 }
                 var boundable = (IBoundable)sprite;
-                var boudingBox = boundable.GetBoundingBox(offsetX, offsetY);
+                var boudingBox = boundable.GetBoundingBox();
                 if (boudingBox.Top < top)
                 {
                     top = boudingBox.Top;
@@ -56,7 +52,7 @@ namespace SamllHax.MapleSyrup.Draw
                     right = boudingBox.Right;
                 }
             }
-            return new SKRectI() { Top = top, Left = left, Bottom = bottom, Right = right };
+            return this.TransformBoundingBox(new SKRectI() { Top = top, Left = left, Bottom = bottom, Right = right });
         }
 
         public void Update(int delta)
