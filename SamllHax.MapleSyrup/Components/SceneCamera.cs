@@ -53,7 +53,7 @@ namespace SamllHax.MapleSyrup.Components
                     sceneY = sceneBoundingBox.Bottom - containerBoundingBox.Height;
                 }
             }
-            matrix = matrix.PostConcat(SKMatrix.CreateTranslation(-1 * sceneX, -1 * sceneY));
+            matrix = SKMatrix.CreateTranslation(-1 * sceneX, -1 * sceneY).PostConcat(matrix);
             Scene.Draw(canvas, this.TransformMatrix(matrix));
 
         }

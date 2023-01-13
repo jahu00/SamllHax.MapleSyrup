@@ -25,7 +25,7 @@ namespace SamllHax.MapleSyrup.Draw
     {
         public static SKMatrix TransformMatrix(this IDrawable drawable, SKMatrix matrix)
         {
-            var result = matrix;
+            var result = SKMatrix.Identity;
             if (drawable.OffsetX != 0 || drawable.OffsetY != 0)
             {
                 result = result.PostConcat(SKMatrix.CreateTranslation(drawable.OffsetX, drawable.OffsetY));
@@ -38,6 +38,7 @@ namespace SamllHax.MapleSyrup.Draw
             {
                 result = result.PostConcat(SKMatrix.CreateTranslation((int)drawable.X, (int)drawable.Y));
             }
+            result = result.PostConcat(matrix);
             return result;
         }
 
