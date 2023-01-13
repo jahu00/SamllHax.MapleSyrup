@@ -22,7 +22,10 @@ namespace SamllHax.MapleSyrup.Components
             {
                 X = BoundingBox.Left,
                 Y = BoundingBox.MidY,
-                Bitmap = _resourceManager.GetMobImage("0100100", "stand", "0")
+                Bitmap = _resourceManager.GetMobImage("0100100", "stand", "0"),
+                //ScaleX = -1,
+                OffsetX = 18,
+                OffsetY = 26
             };
         }
 

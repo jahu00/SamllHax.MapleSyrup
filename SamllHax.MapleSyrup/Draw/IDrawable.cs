@@ -28,7 +28,7 @@ namespace SamllHax.MapleSyrup.Draw
             var result = SKMatrix.Identity;
             if (drawable.OffsetX != 0 || drawable.OffsetY != 0)
             {
-                result = result.PostConcat(SKMatrix.CreateTranslation(drawable.OffsetX, drawable.OffsetY));
+                result = result.PostConcat(SKMatrix.CreateTranslation(-1 * drawable.OffsetX, -1 * drawable.OffsetY));
             }
             if (drawable.ScaleX != 1 || drawable.ScaleY != 1)
             {
@@ -45,7 +45,7 @@ namespace SamllHax.MapleSyrup.Draw
         public static SKRectI TransformBoundingBox(this IDrawable drawable, SKRectI boundingBox)
         {
             var tempBoundingBox = new SKRect(boundingBox.Left, boundingBox.Top, boundingBox.Right, boundingBox.Bottom);
-            tempBoundingBox.Offset(drawable.OffsetX, drawable.OffsetY);
+            tempBoundingBox.Offset(-1 * drawable.OffsetX, -1 * drawable.OffsetY);
             tempBoundingBox.Inflate(drawable.ScaleX, drawable.ScaleY);
             tempBoundingBox.Offset(drawable.X, drawable.Y);
             return tempBoundingBox.ToRectI();

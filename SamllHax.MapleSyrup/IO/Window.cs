@@ -95,10 +95,12 @@ namespace SamllHax.MapleSyrup.IO
             if (KeyboardState.IsKeyDown(Keys.Left))
             {
                 _mapInstance.Character.X -= 1;
+                _mapInstance.Character.ScaleX = 1;
             }
             if (KeyboardState.IsKeyDown(Keys.Right))
             {
                 _mapInstance.Character.X += 1;
+                _mapInstance.Character.ScaleX = -1;
             }
             base.OnUpdateFrame(args);
         }

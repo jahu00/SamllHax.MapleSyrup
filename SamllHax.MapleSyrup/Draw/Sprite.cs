@@ -7,11 +7,6 @@ namespace SamllHax.MapleSyrup.Draw
     {
         public SKBitmap Bitmap { get; set; }
 
-        public void Draw(SKCanvas canvas, int x, int y)
-        {
-            canvas.DrawBitmap(Bitmap, X + x, Y + y);
-        }
-
         public void Draw(SKCanvas canvas, SKMatrix matrix)
         {
             canvas.DrawBitmap(Bitmap, this.TransformMatrix(matrix));
