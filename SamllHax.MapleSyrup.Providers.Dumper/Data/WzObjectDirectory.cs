@@ -8,9 +8,9 @@ using SamllHax.MapleSyrup.Providers.Dumper.Nodes;
 
 namespace SamllHax.MapleSyrup.Providers.Dumper.Data
 {
-    public class WzObjectDirectory : WzEntity, IEntityDirectory<IAnimation>
+    public class WzAnimationDirectory : WzEntity, IEntityDirectory<IAnimation>
     {
-        public WzObjectDirectory(WzDirectory directory, int watchdog = 255) : base(directory)
+        public WzAnimationDirectory(WzDirectory directory, int watchdog = 255) : base(directory)
         {
             watchdog--;
             if (watchdog <= 0)
@@ -21,12 +21,12 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
             {
                 if (objectNode.Children.Any(x => x is WzCanvas))
                 {
-                    var obj = new WzObject(objectNode);
+                    var obj = new WzAnimation(objectNode);
                     Entities.Add(obj.Name, obj);
                     continue;
                 }
 
-                var entityDirectory = new WzObjectDirectory(objectNode);
+                var entityDirectory = new WzAnimationDirectory(objectNode);
                 Directories.Add(entityDirectory.Name, entityDirectory);
             }
         }

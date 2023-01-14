@@ -8,11 +8,11 @@ using SamllHax.MapleSyrup.Providers.Dumper.Nodes;
 
 namespace SamllHax.MapleSyrup.Providers.Dumper.Data
 {
-    public class WzObject: WzEntity, IAnimation
+    public class WzAnimation: WzEntity, IAnimation
     {
         public static readonly string[] NonFrameNodeNames = { "seat", "foothold", "blend", "zigzag" };
 
-        public WzObject(WzDirectory directory) : base(directory)
+        public WzAnimation(WzDirectory directory) : base(directory)
         {
             foreach (var frameNode in _directory.Children.OrderByDescending(x => x is WzCanvas))
             {

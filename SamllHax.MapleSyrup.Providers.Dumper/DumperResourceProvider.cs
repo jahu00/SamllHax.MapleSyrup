@@ -32,7 +32,7 @@ namespace SamllHax.MapleSyrup.Providers.Dumper
         public IEntityDirectory<IAnimation> GetObjectDirectory(string name)
         {
             var relativeFilePath = $"Map.wz/Obj/{name}.img";
-            return GetEntityFromXml(relativeFilePath, (node) => new WzObjectDirectory(node));
+            return GetEntityFromXml(relativeFilePath, (node) => new WzAnimationDirectory(node));
         }
 
         public IEntityDirectory<IFrame> GetTileSet(string name)
