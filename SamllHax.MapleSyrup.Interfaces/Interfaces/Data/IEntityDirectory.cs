@@ -23,5 +23,20 @@ namespace SamllHax.MapleSyrup.Interfaces.Data
             }
             return currentDirectory.Entities[entityName];
         }
+
+        public static IEntity GetByPath<T>(this IEntityDirectory<T> entityDirectory, string[] path) where T : IEntity
+        {
+            var currentDirectory = entityDirectory;
+            var entityName = path.Last();
+            foreach (var currentName in path.Take(path.Length - 1))
+            {
+                currentDirectory = currentDirectory.Directories[currentName];
+            }
+            if (currentDirectory.Directories.TryGetValue(entityName, out var directory))
+            {
+                return directory;
+            }
+            return currentDirectory.Entities[entityName];
+        }
     }
 }

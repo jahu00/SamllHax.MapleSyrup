@@ -10,6 +10,7 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
     {
         public WzMapHelpers(WzDirectory directory) : base(directory)
         {
+            Portals = new WzAnimationDirectory(directory.GetSingleChild<WzDirectory>("portal"));
         }
 
         IEntityDirectory<IAnimation> Portals { get; set; }
