@@ -8,15 +8,24 @@ using System.Threading.Tasks;
 
 namespace SamllHax.MapleSyrup.Draw
 {
-    public class SpriteCollection: DrawableBase, IDrawable, IUpdatable, IBoundable
+    public class DrawableCollection: DrawableBase, IDrawable, IUpdatable, IBoundable
     {
-        public List<IDrawable> Sprites { get; set; } = new List<IDrawable>();
+        public List<IDrawable> Children { get; } = new List<IDrawable>();
+
+        public DrawableCollection()
+        {
+        }
+
+        public DrawableCollection(IEnumerable<IDrawable> drawables)
+        {
+            Children.AddRange(drawables);
+        }
 
         public void Draw(SKCanvas canvas, SKMatrix matrix)
         {
-            foreach(var sprite in Sprites)
+            foreach(var drawable in Children)
             {
-                sprite.Draw(canvas, this.TransformMatrix(matrix));
+                drawable.Draw(canvas, this.GetTransformMatrix(matrix));
             }
 
         }
@@ -27,7 +36,7 @@ namespace SamllHax.MapleSyrup.Draw
             var left = 0;
             var bottom = 0;
             var right = 0;
-            foreach (var sprite in Sprites)
+            foreach (var sprite in Children)
             {
                 if (sprite is not IBoundable)
                 {
@@ -57,7 +66,7 @@ namespace SamllHax.MapleSyrup.Draw
 
         public void Update(int delta)
         {
-            foreach (var sprite in Sprites)
+            foreach (var sprite in Children)
             {
                 if (sprite is not IUpdatable)
                 {

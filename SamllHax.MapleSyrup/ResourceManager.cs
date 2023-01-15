@@ -1,5 +1,4 @@
-﻿using SamllHax.MapleSyrup.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using SamllHax.MapleSyrup.Interfaces.Providers;
 using SamllHax.MapleSyrup.Interfaces.Data;
+using SamllHax.MapleSyrup.Interfaces.Interfaces.Providers;
 
 namespace SamllHax.MapleSyrup
 {
@@ -21,8 +21,8 @@ namespace SamllHax.MapleSyrup
         private readonly IConfiguration _configuration;
 
         //public Dictionary<string, WzTileSet> TileSetCatche { get; } = new Dictionary<string, WzTileSet>();
-        public Dictionary<string, IEntity> EntityCache { get; } = new Dictionary<string, IEntity>();
-        public Dictionary<string, SKBitmap> ImageCatche { get; } = new Dictionary<string, SKBitmap>();
+        public Dictionary<string, CachedResourceWrapper> ResourceCache { get; } = new Dictionary<string, CachedResourceWrapper>();
+        public Dictionary<object, List<CachedResourceWrapper>> OwnerIndex { get; } = new Dictionary<object, List<CachedResourceWrapper>>();
 
         public ResourceManager(IConfiguration configuration, IResourceProvider resourceProvider)
         {
@@ -30,62 +30,97 @@ namespace SamllHax.MapleSyrup
             _resourceProvider = resourceProvider;
         }
 
-        public IMap GetMap(int id)
+        public IMap GetMap(object owner, int id)
         {
-            return GetEntityFromCache($"Map-{id}", () => _resourceProvider.GetMap(id));
+            return GetFromCache($"Map-{id}", owner, () => _resourceProvider.GetMap(id));
         }
 
-        public IEntityDirectory<IFrame> GetTileSet(string name)
+        public IEntityDirectory<IFrame> GetTileSet(object owner, string name)
         {
-            return GetEntityFromCache($"TileSet-{name}", () => _resourceProvider.GetTileSet(name));
+            return GetFromCache($"TileSet-{name}", owner, () => _resourceProvider.GetTileSet(name));
         }
 
-        public IEntityDirectory<IAnimation> GetObjectDirectory(string name)
+        public IEntityDirectory<IAnimation> GetObjectDirectory(object owner, string name)
         {
-            return GetEntityFromCache($"ObjectGroup-{name}", () => _resourceProvider.GetObjectDirectory(name));
+            return GetFromCache($"ObjectGroup-{name}", owner, () => _resourceProvider.GetObjectDirectory(name));
         }
 
-        public T GetEntityFromCache<T>(string key, Func<T> fallback) where T : IEntity
+        internal IMapHelpers GetMapHelpers(object owner)
         {
-            IEntity entity;
-            if (!EntityCache.TryGetValue(key, out entity))
+            return GetFromCache($"MapHelpers", owner, () => _resourceProvider.GetMapHelpers());
+        }
+
+        public T GetFromCache<T>(string key, object owner, Func<T> fallback)
+        {
+            CachedResourceWrapper cachedResourceWrapper;
+            T resource;
+            if (!ResourceCache.TryGetValue(key, out cachedResourceWrapper))
             {
-                entity = fallback();
-                EntityCache.Add(key, entity);
+                resource = fallback();
+                cachedResourceWrapper = new CachedResourceWrapper(resource, owner);
+                ResourceCache.Add(key, cachedResourceWrapper);
             }
-            return (T)entity;
+            else if (!cachedResourceWrapper.Owners.Contains(owner))
+            {
+                cachedResourceWrapper.Owners.Add(owner);
+            }
+            if (OwnerIndex.TryGetValue(owner, out var ownedResources) && !ownedResources.Contains(cachedResourceWrapper))
+            {
+                ownedResources.Add(cachedResourceWrapper);
+            }
+            return cachedResourceWrapper.Cast<T>();
         }
 
-        public SKBitmap GetTileImage(string tileSetName, string[] path)
+        public void AbandonResources(object owner)
+        {
+            if (!OwnerIndex.TryGetValue(owner, out var ownedResources))
+            {
+                return;
+            }
+            ownedResources.ForEach(x => x.Owners.Remove(owner));
+            OwnerIndex.Remove(owner);
+        }
+
+        public void FreeResources()
+        {
+            var abandonedReourceKeys = ResourceCache.Where(x => x.Value.IsAbandoned).Select(x => x.Key).ToList();
+            abandonedReourceKeys.ForEach(key => ResourceCache.Remove(key));
+        }
+
+        public SKBitmap GetTileImage(object owner, string tileSetName, string[] path)
         {
             var key = $"TileSet-{tileSetName}-{string.Join("-", path)}";
-            return GetImageFromCache(key, () => _resourceProvider.GetTileImage(tileSetName, path));
+            return GetFromCache(key, owner, () => _resourceProvider.GetTileImage(tileSetName, path).ToBitmap());
         }
 
-        public SKBitmap GetObjectImage(string objectDirectoryName, string[] path, string frameId)
+        public SKBitmap GetObjectImage(object owner, string objectDirectoryName, string[] path, string frameId)
         {
             var key = $"Obj-{objectDirectoryName}-{string.Join("-", path)}-{frameId}";
-            return GetImageFromCache(key, () => _resourceProvider.GetObjectImage(objectDirectoryName, path, frameId));
+            return GetFromCache(key, owner, () => _resourceProvider.GetObjectImage(objectDirectoryName, path, frameId).ToBitmap());
         }
 
-        public SKBitmap GetMobImage(string mobId, string animation, string frameId)
+        public SKBitmap GetMobImage(object owner, string mobId, string animation, string frameId)
         {
             var key = $"Mob-{mobId}-{animation}-{frameId}";
-            return GetImageFromCache(key, () => _resourceProvider.GetMobImage(mobId, animation, frameId));
+            return GetFromCache(key, owner, () => _resourceProvider.GetMobImage(mobId, animation, frameId).ToBitmap());
         }
 
-        public SKBitmap GetImageFromCache(string key, Func<Stream> fallback)
+        public SKBitmap GetImage(object owner, string file, string[] path, string frameId)
         {
-            SKBitmap bitmap;
-            if (!ImageCatche.TryGetValue(key, out bitmap))
-            {
-                var stream = fallback();
-                bitmap = SKBitmap.Decode(stream);
-                ImageCatche.Add(key, bitmap);
-            }
-            return bitmap;
+            var key = $"{file}-{string.Join("-", path)}-{frameId}";
+            return GetFromCache(key, owner, () => _resourceProvider.GetImage(file, path, frameId).ToBitmap());
         }
 
-        
+        public Dictionary<string, SKBitmap> GetImages(object owner, DataFiles dataFile, IEnumerable<string> path, string[] frameIds)
+        {
+            return GetImages(owner, dataFile.ToString(), path, frameIds);
+        }
+
+        public Dictionary<string, SKBitmap> GetImages(object owner, string file, IEnumerable<string> path, string[] frameIds)
+        {
+            var key = $"{file}-{string.Join("-", path)}-frames";
+            return GetFromCache(key, owner, () => frameIds.Select(frameId => new { FrameId = frameId, Bitmap = _resourceProvider.GetImage(file, path, frameId).ToBitmap() }).ToDictionary(x => x.FrameId, x => x.Bitmap));
+        }
+
     }
 }

@@ -23,6 +23,7 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
 
         public string MapMark { get; }
         public List<IMapLayer> Layers { get; } = new List<IMapLayer>();
+        public List<IMapPortal> Portals { get; } = new List<IMapPortal>();
 
     }
 }

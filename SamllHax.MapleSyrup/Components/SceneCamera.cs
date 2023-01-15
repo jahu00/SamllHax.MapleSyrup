@@ -54,7 +54,7 @@ namespace SamllHax.MapleSyrup.Components
                 }
             }
             matrix = SKMatrix.CreateTranslation(-1 * sceneX, -1 * sceneY).PostConcat(matrix);
-            Scene.Draw(canvas, this.TransformMatrix(matrix));
+            Scene.Draw(canvas, this.GetTransformMatrix(matrix));
 
         }
     }

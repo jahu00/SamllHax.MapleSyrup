@@ -23,29 +23,29 @@ namespace SamllHax.MapleSyrup
                 var objectSprites = new List<IDrawable>();
                 foreach (var obj in layer.Objects.OrderBy(x=> x.Z))
                 {
-                    var objectGroupData = _resourceManager.GetObjectDirectory(obj.DirectoryName);
+                    var objectGroupData = _resourceManager.GetObjectDirectory(this, obj.DirectoryName);
                     var objectData = objectGroupData.GetEntityByPath(obj.Path);
                     var objectPartFrameData = objectData.Frames.Values.First();
-                    var objectBitmap = _resourceManager.GetObjectImage(obj.DirectoryName, obj.Path, objectPartFrameData.Name);
+                    var objectBitmap = _resourceManager.GetObjectImage(this, obj.DirectoryName, obj.Path, objectPartFrameData.Name);
                     objectSprites.Add(new Sprite() { Bitmap = objectBitmap, X = obj.X - objectPartFrameData.Origin.X, Y = obj.Y - objectPartFrameData.Origin.Y });
                 }
-                new SpriteCollection() { Sprites = objectSprites }.Draw(canvas, matrix);
+                new DrawableCollection(objectSprites).Draw(canvas, matrix);
 
                 var tileSprites = new List<IDrawable>();
                 if (layer.TileSetName == null || layer.Tiles.Count == 0)
                 {
                     continue;
                 }
-                var tileSet = _resourceManager.GetTileSet(layer.TileSetName);
+                var tileSet = _resourceManager.GetTileSet(this, layer.TileSetName);
                 foreach (var tile in layer.Tiles.OrderBy(x => x.Z))
                 {
-                    var tileBitmap = _resourceManager.GetTileImage(layer.TileSetName, tile.Path);
+                    var tileBitmap = _resourceManager.GetTileImage(this, layer.TileSetName, tile.Path);
                     var tileData = tileSet.GetEntityByPath(tile.Path);
                     //var z = tile.Z
                     tileSprites.Add(new Sprite() { Bitmap = tileBitmap, X = tile.X - tileData.Origin.X, Y = tile.Y - tileData.Origin.Y });
                     //canvas.DrawBitmap(tileBitmap, tile.X - tileData.Origin.X + x, tile.Y - tileData.Origin.Y + y);
                 }
-                new SpriteCollection() { Sprites = tileSprites }.Draw(canvas, matrix);
+                new DrawableCollection(tileSprites).Draw(canvas, matrix);
             }
 
             return bitmap;

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace SamllHax.MapleSyrup.Providers.Dumper.Data
 {
-    public class WzMapPortal : WzEntity
+    public class WzMapPortal : WzEntity, IMapPortal
     {
         public WzMapPortal(WzDirectory directory) : base(directory)
         {

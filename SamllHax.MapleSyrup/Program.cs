@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SamllHax.MapleSyrup.Interfaces.Providers;
 using SamllHax.MapleSyrup.Providers.Dumper;
+using SamllHax.MapleSyrup.Helpers;
 
 namespace SamllHax.MapleSyrup
 {
@@ -19,8 +20,11 @@ namespace SamllHax.MapleSyrup
                 .ConfigureServices((context, services) =>
                 {
                     services.AddSingleton<IResourceProvider, DumperResourceProvider>();
+                    services.AddSingleton<ObjectFactory>();
                     services.AddSingleton<ResourceManager>();
-                    services.AddSingleton<MapRenderer>();
+                    services.AddSingleton<ComponentHelper>();
+                    services.AddSingleton<CommonData>();
+                    //services.AddSingleton<MapRenderer>();
                     services.AddSingleton<Window>();
                 }).Build();
 

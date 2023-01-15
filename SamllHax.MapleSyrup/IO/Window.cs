@@ -5,38 +5,50 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using SamllHax.MapleSyrup.Components;
-using SamllHax.MapleSyrup.Data;
 using SamllHax.MapleSyrup.Draw;
+using SamllHax.MapleSyrup.Interfaces.Data;
+using SamllHax.MapleSyrup.Providers.Dumper.Data;
 using SkiaSharp;
 
 namespace SamllHax.MapleSyrup.IO
 {
     public class Window: GameWindow, IBoundable
     {
+        private readonly IConfiguration _windowConfiguration;
+        private readonly ObjectFactory _objectFactory;
+        private readonly IConfiguration _configuration;
+        private readonly ResourceManager _resourceManager;
+        private readonly CommonData _commonData;
+
         private GRGlInterface grgInterface;
         private GRContext grContext;
         private GRBackendRenderTarget renderTarget;
         private SKSurface surface;
         private SKCanvas canvas;
-        private readonly IConfiguration _windowConfiguration;
-        private readonly IConfiguration _configuration;
-        private readonly ResourceManager _resourceManager;
+
         private float Scale = 1;
         private Vector2i InternalResolution;
         private SKRectI BoundingBox;
         private SKMatrix BaseMatrix;
-
 
         private double timer = 0;
 
         private MapInstance _mapInstance;
         private SceneCamera<MapInstance> _camera;
 
-        public Window(IConfiguration configuration, ResourceManager resourceManager): base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
+        public Window
+        (
+            IConfiguration configuration,
+            ResourceManager resourceManager,
+            ObjectFactory objectFactory,
+            CommonData commonData
+        ): base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
         {
             _configuration = configuration;
             _windowConfiguration = configuration.GetSection("Window");
+            _objectFactory = objectFactory;
             _resourceManager = resourceManager;
+            _commonData = commonData;
             //VSync = VSyncMode.On;
         }
 
@@ -45,8 +57,7 @@ namespace SamllHax.MapleSyrup.IO
             base.OnLoad();
             grgInterface = GRGlInterface.Create();
             grContext = GRContext.CreateGl(grgInterface);
-
-            _mapInstance = new MapInstance(_resourceManager, 100000000) { ScaleX = 1f, ScaleY = 1f };
+            _mapInstance = _objectFactory.Create<MapInstance>().Init(100000000);
             _camera = new SceneCamera<MapInstance>() { Container = this, Scene = _mapInstance, ObjectWithCamera = _mapInstance.Character };
         }
 
@@ -107,9 +118,9 @@ namespace SamllHax.MapleSyrup.IO
 
         protected override void OnResize(ResizeEventArgs args)
         {
+            renderTarget?.Dispose();
             renderTarget = new GRBackendRenderTarget(args.Width, args.Height, 0, 8, new GRGlFramebufferInfo(0, (uint)SizedInternalFormat.Rgba8));
-            //renderTarget = new GRBackendRenderTarget(ClientSize.X, ClientSize.Y, 0, 8, new GRGlFramebufferInfo(0, (uint)SizedInternalFormat.Rgba8));
-            //renderTarget = new GRBackendRenderTarget(Size.X, Size.Y, 0, 8, new GRGlFramebufferInfo(0, (uint)SizedInternalFormat.Rgba8));
+            surface?.Dispose();
             surface = SKSurface.Create(grContext, renderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
             canvas = surface.Canvas;
             var xScale = (float)args.Width / (float)_windowConfiguration.GetValue<int>("Width");

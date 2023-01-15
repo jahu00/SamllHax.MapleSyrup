@@ -8,8 +8,8 @@ namespace SamllHax.MapleSyrup.Draw
 {
     public abstract class DrawableBase
     {
-        public virtual int OffsetX { get; set; } = 0;
-        public virtual int OffsetY { get; set; } = 0;
+        public virtual int OriginX { get; set; } = 0;
+        public virtual int OriginY { get; set; } = 0;
         public virtual float X { get; set; } = 0;
         public virtual float Y { get; set; } = 0;
         public virtual float ScaleX { get; set; } = 1;

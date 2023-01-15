@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 
 namespace SamllHax.MapleSyrup.Interfaces.Data
 {
-    public interface IMapTile : IMapEntityBase
+    public interface IMapEntityBase : IEntity
     {
-        string[] Path { get; }
-        int Z { get; }
+        int X { get; }
+        int Y { get; }
     }
 }

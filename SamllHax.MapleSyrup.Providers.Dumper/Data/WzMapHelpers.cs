@@ -6,13 +6,13 @@ using System.Text;
 
 namespace SamllHax.MapleSyrup.Providers.Dumper.Data
 {
-    public class WzMapHelpers : WzEntity
+    public class WzMapHelpers : WzEntity, IMapHelpers
     {
         public WzMapHelpers(WzDirectory directory) : base(directory)
         {
             Portals = new WzAnimationDirectory(directory.GetSingleChild<WzDirectory>("portal"));
         }
 
-        IEntityDirectory<IAnimation> Portals { get; set; }
+        public IEntityDirectory<IAnimation> Portals { get; set; }
     }
 }

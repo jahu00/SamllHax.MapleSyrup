@@ -9,7 +9,7 @@ namespace SamllHax.MapleSyrup.Draw
 
         public void Draw(SKCanvas canvas, SKMatrix matrix)
         {
-            canvas.DrawBitmap(Bitmap, this.TransformMatrix(matrix));
+            canvas.DrawBitmap(Bitmap, this.GetTransformMatrix(matrix));
         }
 
         public SKRectI GetBoundingBox()

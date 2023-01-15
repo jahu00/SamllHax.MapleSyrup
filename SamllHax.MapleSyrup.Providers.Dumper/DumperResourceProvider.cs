@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
 using SamllHax.MapleSyrup.Interfaces.Data;
+using SamllHax.MapleSyrup.Interfaces.Interfaces.Providers;
 using SamllHax.MapleSyrup.Interfaces.Providers;
 using SamllHax.MapleSyrup.Providers.Dumper.Data;
 using SamllHax.MapleSyrup.Providers.Dumper.Extensions;
 using SamllHax.MapleSyrup.Providers.Dumper.Nodes;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -13,37 +15,43 @@ namespace SamllHax.MapleSyrup.Providers.Dumper
 {
     public class DumperResourceProvider : IResourceProvider
     {
-        private readonly string _path;
+        private readonly string _basePath;
         private readonly IConfiguration _configuration;
         public DumperResourceProvider(IConfiguration configuration)
         {
             _configuration = configuration.GetSection("DumperResourceProvider");
-            _path = _configuration.GetValue<string>("Path");
+            _basePath = _configuration.GetValue<string>("Path");
         }
 
         public IMap GetMap(int id)
         {
             var strId = id.ToString().PadLeft(9, '0');
             var areaSuffix = id / 100000000;
-            var relativePath = $"Map.wz/Map/Map{areaSuffix}/{strId}.img";
+            var relativePath = $"Map.wz/Map/Map{areaSuffix}/{strId}";
             return GetEntityFromXml(relativePath, (node) => new WzMap(node));
         }
 
         public IEntityDirectory<IAnimation> GetObjectDirectory(string name)
         {
-            var relativeFilePath = $"Map.wz/Obj/{name}.img";
+            var relativeFilePath = $"Map.wz/Obj/{name}";
             return GetEntityFromXml(relativeFilePath, (node) => new WzAnimationDirectory(node));
         }
 
         public IEntityDirectory<IFrame> GetTileSet(string name)
         {
-            var relativeFilePath = $"Map.wz/Tile/{name}.img";
+            var relativeFilePath = $"Map.wz/Tile/{name}";
             return GetEntityFromXml(relativeFilePath, (node) => new WzTileSet(node));
+        }
+
+        public IMapHelpers GetMapHelpers()
+        {
+            var relativeFilePath = $"Map.wz/MapHelper";
+            return GetEntityFromXml(relativeFilePath, (node) => new WzMapHelpers(node));
         }
 
         public T GetEntityFromXml<T>(string relativePath, Func<WzDirectory, T> getEntity) where T : WzEntity
         {
-            var filePath = Path.Combine(_path, relativePath + ".xml");
+            var filePath = Path.Combine(_basePath, relativePath + ".img.xml");
             var xml = XElement.Load(filePath);
             var node = (WzDirectory)ParseNode(xml);
             var entity = getEntity(node);
@@ -79,6 +87,9 @@ namespace SamllHax.MapleSyrup.Providers.Dumper
                     break;
                 case "uol":
                     node = new WzRepeat() { Value = xml.Attribute("value").Value };
+                    break;
+                case "sound":
+                    node = new WzSound();
                     break;
                 default:
                     //node = new WzNode();
@@ -120,14 +131,29 @@ namespace SamllHax.MapleSyrup.Providers.Dumper
             return GetImage(relativeFilePath);
         }
 
+        public Stream GetImage(string file, IEnumerable<string> path, string frameId)
+        {
+
+            var relativeFilePath = Path.Combine(_basePath, $"{file}.wz/{string.Join("/", path)}/{frameId}");
+            return GetImage(relativeFilePath);
+        }
+
         public Stream GetImage(string relativeFilePath)
         {
 
-            var filePath = Path.Combine(_path, relativeFilePath + ".png");
+            var filePath = Path.Combine(_basePath, relativeFilePath + ".png");
             var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
             return stream;
         }
 
-        
+        public string BuildPath(DataFiles dataFile, string[] path)
+        {
+            return BuildPath(dataFile.ToString(), path);
+        }
+
+        public string BuildPath(string file, string[] path)
+        {
+            return $"{file}.wz/{string.Join("/", path)}";
+        }
     }
 }
