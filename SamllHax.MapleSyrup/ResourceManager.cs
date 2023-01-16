@@ -111,12 +111,12 @@ namespace SamllHax.MapleSyrup
             return GetFromCache(key, owner, () => _resourceProvider.GetImage(file, path, frameId).ToBitmap());
         }
 
-        public Dictionary<string, SKBitmap> GetImages(object owner, DataFiles dataFile, IEnumerable<string> path, string[] frameIds)
+        public Dictionary<string, SKBitmap> GetImages(object owner, DataFiles dataFile, IEnumerable<string> path, IEnumerable<string> frameIds)
         {
             return GetImages(owner, dataFile.ToString(), path, frameIds);
         }
 
-        public Dictionary<string, SKBitmap> GetImages(object owner, string file, IEnumerable<string> path, string[] frameIds)
+        public Dictionary<string, SKBitmap> GetImages(object owner, string file, IEnumerable<string> path, IEnumerable<string> frameIds)
         {
             var key = $"{file}-{string.Join("-", path)}-frames";
             return GetFromCache(key, owner, () => frameIds.Select(frameId => new { FrameId = frameId, Bitmap = _resourceProvider.GetImage(file, path, frameId).ToBitmap() }).ToDictionary(x => x.FrameId, x => x.Bitmap));

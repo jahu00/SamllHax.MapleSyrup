@@ -41,19 +41,9 @@ namespace SamllHax.MapleSyrup.Components
             return this;
         }
 
-        private List<IDrawable> BuildPortals(List<IMapPortal> mapPortals)
+        private IEnumerable<IDrawable> BuildPortals(List<IMapPortal> mapPortals)
         {
-            /*var portals = mapPortals.Where(x => x.PortalType == PortalType.REGULAR).Select(mapPortal =>
-            {
-                var portal = _commonData.MapHelpers.Portals.GetEntityByPath<IAnimation>(new string[] { "game", "pv" });
-                new AnimatedSprite()
-                {
-                    X = mapPortal.X,
-                    Y = mapPortal.Y,
-                };
-            });
-            return portals;*/
-            return new List<IDrawable>();
+            return mapPortals.Where(x => x.PortalType == PortalType.REGULAR).Select(mapPortal => (IDrawable)_componentHelper.CreatePortalInstance(mapPortal));
         }
 
         private IEnumerable<IDrawable> BuildLayers(IEnumerable<IMapLayer> mapLayers)

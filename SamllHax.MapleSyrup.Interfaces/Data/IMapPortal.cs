@@ -8,7 +8,7 @@ namespace SamllHax.MapleSyrup.Interfaces.Data
     {
         string PortalName { get; }
         PortalType PortalType { get; }
-        string TargetMapId { get; }
+        int TargetMapId { get; }
         string TargetPortalName { get; }
     }
 }

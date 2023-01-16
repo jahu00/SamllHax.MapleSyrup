@@ -18,6 +18,7 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
                 var mapLayer = new WzMapLayer(mapLayerDirectory);
                 Layers.Add(mapLayer);
             }
+            Portals = _directory.GetSingleChild<WzDirectory>("portal").Children.Cast<WzDirectory>().Select(x => (IMapPortal)new WzMapPortal(x)).ToList();
             MapMark = _directory.GetSingleChild<WzDirectory>("info").GetSingleChild<WzStringValue>("mapMark").Value;
         }
 

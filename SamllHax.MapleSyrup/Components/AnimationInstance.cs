@@ -25,7 +25,7 @@ namespace SamllHax.MapleSyrup.Components
             {
                 yield return new Frame()
                 {
-                    Delay = frameData.Delay ?? 0,
+                    Delay = frameData.Delay ?? Constants.DefaultDelay,
                     Sprite = new Sprite() { Bitmap = bitmaps[key], OriginX = frameData.Origin.X, OriginY = frameData.Origin.Y }
                 };
             }
