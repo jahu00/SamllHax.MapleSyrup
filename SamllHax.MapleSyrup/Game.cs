@@ -6,6 +6,7 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using SamllHax.MapleSyrup.Components;
 using SamllHax.MapleSyrup.Draw;
+using SamllHax.MapleSyrup.Helpers;
 using SamllHax.MapleSyrup.Interfaces.Data;
 using SamllHax.MapleSyrup.Providers.Dumper.Data;
 using SkiaSharp;
@@ -16,6 +17,7 @@ namespace SamllHax.MapleSyrup
     {
         private readonly IConfiguration _windowConfiguration;
         private readonly ObjectFactory _objectFactory;
+        private readonly ComponentHelper _componentHelper;
         private readonly IConfiguration _configuration;
         private readonly ResourceManager _resourceManager;
         private readonly CommonData _commonData;
@@ -41,12 +43,14 @@ namespace SamllHax.MapleSyrup
             IConfiguration configuration,
             ResourceManager resourceManager,
             ObjectFactory objectFactory,
+            ComponentHelper componentHelper,
             CommonData commonData
-        ) : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
+        ) : base(new GameWindowSettings() { RenderFrequency = 75, UpdateFrequency = 60 }, new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
         {
             _configuration = configuration;
             _windowConfiguration = configuration.GetSection("Window");
             _objectFactory = objectFactory;
+            _componentHelper = componentHelper;
             _resourceManager = resourceManager;
             _commonData = commonData;
             //VSync = VSyncMode.On;
@@ -57,8 +61,18 @@ namespace SamllHax.MapleSyrup
             base.OnLoad();
             grgInterface = GRGlInterface.Create();
             grContext = GRContext.CreateGl(grgInterface);
-            _mapInstance = _objectFactory.Create<MapInstance>().Init(100000000);
+            InitMap(100000000, null);
+        }
+
+        private void InitMap(int mapId, string portalName)
+        {
+            if (_mapInstance != null)
+            {
+                _resourceManager.AbandonResources(_mapInstance);
+            }
+            _mapInstance = _componentHelper.CreateMapInstance(mapId, portalName);
             _camera = new SceneCamera<MapInstance>() { Container = this, Scene = _mapInstance, ObjectWithCamera = _mapInstance.Character };
+            _resourceManager.FreeResources();
         }
 
         protected override void OnUnload()
@@ -89,6 +103,9 @@ namespace SamllHax.MapleSyrup
             timer += args.Time;
             _mapInstance.Update(delta);
 
+            var speed = 500;
+            var move = (float)(speed * args.Time);
+
             // Check if the Escape button is currently being pressed.
             if (KeyboardState.IsKeyDown(Keys.Escape))
             {
@@ -97,21 +114,37 @@ namespace SamllHax.MapleSyrup
             }
             if (KeyboardState.IsKeyDown(Keys.Down))
             {
-                _mapInstance.Character.Y += 1;
+                _mapInstance.Character.Y += move;
             }
             if (KeyboardState.IsKeyDown(Keys.Up))
             {
-                _mapInstance.Character.Y -= 1;
+                _mapInstance.Character.Y -= move;
             }
             if (KeyboardState.IsKeyDown(Keys.Left))
             {
-                _mapInstance.Character.X -= 1;
+                _mapInstance.Character.X -= move;
                 _mapInstance.Character.ScaleX = 1;
             }
             if (KeyboardState.IsKeyDown(Keys.Right))
             {
-                _mapInstance.Character.X += 1;
+                _mapInstance.Character.X += move;
                 _mapInstance.Character.ScaleX = -1;
+            }
+            if (KeyboardState.IsKeyPressed(Keys.Space))
+            {
+                var portalInstance = _mapInstance.Portals.Children.Cast<PortalInstance>().FirstOrDefault(x => x.GetBoundingBox().Contains((int)_mapInstance.Character.X, (int)_mapInstance.Character.Y));
+                if (portalInstance != null && portalInstance.MapPortal.TargetMapId < 999999999)
+                {
+                    if (portalInstance.MapPortal.TargetMapId.ToString() == _mapInstance.Map.Name)
+                    {
+                        _mapInstance.Character.X = portalInstance.X;
+                        _mapInstance.Character.Y = portalInstance.Y;
+                    }
+                    else
+                    {
+                        InitMap(portalInstance.MapPortal.TargetMapId, portalInstance.MapPortal.TargetPortalName);
+                    }
+                }
             }
             base.OnUpdateFrame(args);
         }

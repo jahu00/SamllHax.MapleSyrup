@@ -10,9 +10,9 @@ namespace SamllHax.MapleSyrup.Components
         private readonly ResourceManager _resourceManager;
         private readonly ComponentHelper _componentHelper;
         private readonly CommonData _commonData;
-        private IMap Map { get; set; }
-        private DrawableCollection Layers { get; set; }
-        private DrawableCollection Portals { get; set; }
+        public IMap Map { get; private set; }
+        public DrawableCollection Layers { get; private set; }
+        public DrawableCollection Portals { get; private set; }
         public Sprite Character { get; private set; }
         public SKRectI BoundingBox { get; private set; }
 
@@ -23,7 +23,7 @@ namespace SamllHax.MapleSyrup.Components
             _commonData = commonData;
         }
 
-        public MapInstance Init(int mapId)
+        public MapInstance Init(int mapId, string portalName = null)
         {
             Map = _resourceManager.GetMap(this, mapId);
             Layers = new DrawableCollection(BuildLayers(Map.Layers));
@@ -31,13 +31,33 @@ namespace SamllHax.MapleSyrup.Components
             BoundingBox = Layers.GetBoundingBox();
             Character = new Sprite()
             {
-                X = BoundingBox.Left,
-                Y = BoundingBox.MidY,
+                /*X = BoundingBox.Left,
+                Y = BoundingBox.MidY,*/
                 Bitmap = _resourceManager.GetMobImage(this, "0100100", "stand", "0"),
                 //ScaleX = -1,
                 OriginX = 18,
                 OriginY = 26
             };
+            if (string.IsNullOrEmpty(portalName))
+            {
+                var spawnPortals = Map.Portals.Where(x => x.PortalType == PortalType.SPAWN).ToArray();
+                if (spawnPortals.Count() == 0)
+                {
+                    throw new Exception($"Map {mapId} has no spawn portals");
+                }
+                var spawnPortal = GlobalRandom.GetRandomElement(spawnPortals);
+                Character.X = spawnPortal.X;
+                Character.Y = spawnPortal.Y;
+            } else
+            {
+                var spawnPortal = Map.Portals.SingleOrDefault(x => x.PortalName == portalName);
+                if (spawnPortal == null)
+                {
+                    throw new Exception($"Portal with name {portalName} not found on map {mapId}");
+                }
+                Character.X = spawnPortal.X;
+                Character.Y = spawnPortal.Y;
+            }
             return this;
         }
 

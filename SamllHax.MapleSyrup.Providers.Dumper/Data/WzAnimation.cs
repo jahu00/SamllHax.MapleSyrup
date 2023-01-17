@@ -10,7 +10,7 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
 {
     public class WzAnimation: WzEntity, IAnimation
     {
-        public static readonly string[] NonFrameNodeNames = { "seat", "foothold", "blend", "zigzag" };
+        public static readonly string[] NonFrameNodeNames = { "seat", "foothold", "blend", "zigzag", "obstacle", "ladder", "rope" };
 
         public WzAnimation(WzDirectory directory) : base(directory)
         {
@@ -38,14 +38,20 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
 
             Seat = _directory.GetSingleOrDefaultChild<WzDirectory>("seat")?.Children.Select(x => (IVector)x).ToList();
             Foothold = _directory.GetSingleOrDefaultChild<WzExtended>("foothold")?.Children.Select(x => (IVector)x).ToList();
+            Ladder = _directory.GetSingleOrDefaultChild<WzExtended>("ladder")?.Children.Select(x => (IVector)x).ToList();
+            Ladder = _directory.GetSingleOrDefaultChild<WzExtended>("rope")?.Children.Select(x => (IVector)x).ToList();
             Blend = _directory.GetSingleOrDefaultChild<WzIntValue>("blend")?.Value;
             ZigZag = _directory.GetSingleOrDefaultChild<WzIntValue>("zigzag")?.Value;
+            Obstacle = _directory.GetSingleOrDefaultChild<WzIntValue>("obstacle")?.Value;
         }
 
         public Dictionary<string, IFrame> Frames { get; } = new Dictionary<string, IFrame>();
         public List<IVector> Seat { get; }
         public List<IVector> Foothold { get; }
+        public List<IVector> Ladder { get; }
+        public List<IVector> Rope { get; }
         public int? Blend { get; }
         public int? ZigZag { get; }
+        public int? Obstacle { get; }
     }
 }

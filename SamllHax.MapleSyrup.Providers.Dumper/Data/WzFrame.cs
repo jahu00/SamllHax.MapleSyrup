@@ -16,9 +16,9 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
             Height = _directory.Height;
             Origin = _directory.GetSingleChild<WzVector>("origin");
             Z = _directory.GetSingleOrDefaultChild<WzIntValue>("z")?.Value;
-            Delay = _directory.GetSingleOrDefaultChild<WzIntValue>("delay")?.Value;
-            Alpha0 = _directory.GetSingleOrDefaultChild<WzIntValue>("a0")?.Value;
-            Alpha1 = _directory.GetSingleOrDefaultChild<WzIntValue>("a1")?.Value;
+            Delay = _directory.GetIntValueFromChild("delay");
+            Alpha0 = _directory.GetIntValueFromChild("a0");
+            Alpha1 = _directory.GetIntValueFromChild("a1");
 
             var footholdNode = _directory.GetSingleOrDefaultChild<WzNode>("foothold");
             if (footholdNode is WzExtended)

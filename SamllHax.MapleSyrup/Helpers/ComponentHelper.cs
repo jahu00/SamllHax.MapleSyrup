@@ -24,6 +24,11 @@ namespace SamllHax.MapleSyrup.Helpers
             _commonData = commonData;
         }
 
+        public MapInstance CreateMapInstance(int mapId, string portalName)
+        {
+            return _objectFactory.Create<MapInstance>().Init(mapId, portalName);
+        }
+
         public AnimationInstance CreateAnimationInstance(object owner, IAnimation animation, DataFiles dataFile, IEnumerable<string> path, int x, int y)
         {
             var frameIds = animation.Frames.Select(x => x.Key).ToArray();
@@ -40,7 +45,7 @@ namespace SamllHax.MapleSyrup.Helpers
 
         public IDrawable CreatePortalInstance(IMapPortal mapPortal)
         {
-            AnimationInstance animationInstance = null;
+            AnimationInstance animationInstance;
             switch (mapPortal.PortalType)
             {
                 case PortalType.REGULAR:

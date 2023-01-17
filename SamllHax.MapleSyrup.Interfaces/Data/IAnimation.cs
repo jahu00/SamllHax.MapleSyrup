@@ -9,6 +9,8 @@ namespace SamllHax.MapleSyrup.Interfaces.Data
         Dictionary<string, IFrame> Frames { get; }
         List<IVector> Seat { get; }
         List<IVector> Foothold { get; }
+        List<IVector> Ladder { get; }
+        List<IVector> Rope { get; }
         int? Blend { get; }
         int? ZigZag { get; }
     }

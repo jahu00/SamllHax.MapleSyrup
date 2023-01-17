@@ -34,5 +34,25 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Nodes
             }
             return typedChild;
         }
+
+        public int? GetIntValueFromChild(string name)
+        {
+            var child = Children.SingleOrDefault(x => x.Name == name);
+            if (child == null)
+            {
+                return null;
+            }
+            var intNode = child as WzIntValue;
+            if (intNode != null)
+            {
+                return intNode.Value;
+            }
+            var stringNode = child as WzStringValue;
+            if (stringNode == null)
+            {
+                throw new Exception($"Node of invalid type, expected WzInt or WzString, got {child.GetType().Name}");
+            }
+            return Convert.ToInt32(stringNode.Value);
+        }
     }
 }
