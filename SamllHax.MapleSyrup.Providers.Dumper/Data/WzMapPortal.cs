@@ -16,6 +16,7 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
             PortalName = _directory.GetSingleChild<WzStringValue>("pn").Value;
             TargetMapId = _directory.GetSingleChild<WzIntValue>("tm").Value;
             TargetPortalName = _directory.GetSingleChild<WzStringValue>("tn").Value;
+            Image = _directory.GetSingleOrDefaultChild<WzStringValue>("image")?.Value;
         }
 
         public int X { get; }
@@ -24,5 +25,6 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
         public PortalType PortalType { get; }
         public int TargetMapId { get; }
         public string TargetPortalName { get; }
+        public string Image { get; }
     }
 }

@@ -10,5 +10,6 @@ namespace SamllHax.MapleSyrup.Interfaces.Data
         PortalType PortalType { get; }
         int TargetMapId { get; }
         string TargetPortalName { get; }
+        string Image { get; }
     }
 }

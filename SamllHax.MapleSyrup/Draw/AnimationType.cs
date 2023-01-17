@@ -10,6 +10,8 @@ namespace SamllHax.MapleSyrup.Draw
     {
         NormalLoop = 0,
         ZiZagLoop = 1,
-        SinglePass = 2
+        SinglePass = 2,
+        Random = 3,
+
     }
 }

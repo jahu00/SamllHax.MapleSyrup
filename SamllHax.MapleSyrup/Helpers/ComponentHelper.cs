@@ -2,6 +2,7 @@
 using SamllHax.MapleSyrup.Draw;
 using SamllHax.MapleSyrup.Interfaces.Data;
 using SamllHax.MapleSyrup.Interfaces.Interfaces.Providers;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,8 +40,21 @@ namespace SamllHax.MapleSyrup.Helpers
 
         public IDrawable CreatePortalInstance(IMapPortal mapPortal)
         {
-            var component = new AnimationInstance(_commonData.PvPortalAnimation, _commonData.PvPortalBitmaps) { X = mapPortal.X, Y = mapPortal.Y };
-            return component;
+            AnimationInstance animationInstance = null;
+            switch (mapPortal.PortalType)
+            {
+                case PortalType.REGULAR:
+                    animationInstance = new AnimationInstance(_commonData.PvPortalAnimation, _commonData.PvPortalBitmaps);
+                    break;
+                case PortalType.HIDDEN:
+                    animationInstance = new AnimationInstance(_commonData.PhPortalAnimation, _commonData.PhPortalBitmaps);
+                    break;
+                default:
+                    animationInstance = null;
+                    break;
+            }
+            var portalInstance = new PortalInstance(mapPortal, animationInstance) { X = mapPortal.X, Y = mapPortal.Y };
+            return portalInstance;
         }
     }
 }

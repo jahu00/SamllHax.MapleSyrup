@@ -43,7 +43,7 @@ namespace SamllHax.MapleSyrup.Components
 
         private IEnumerable<IDrawable> BuildPortals(List<IMapPortal> mapPortals)
         {
-            return mapPortals.Where(x => x.PortalType == PortalType.REGULAR).Select(mapPortal => (IDrawable)_componentHelper.CreatePortalInstance(mapPortal));
+            return mapPortals.Where(x => x.PortalType == PortalType.REGULAR || x.PortalType == PortalType.HIDDEN).Select(mapPortal => (IDrawable)_componentHelper.CreatePortalInstance(mapPortal));
         }
 
         private IEnumerable<IDrawable> BuildLayers(IEnumerable<IMapLayer> mapLayers)

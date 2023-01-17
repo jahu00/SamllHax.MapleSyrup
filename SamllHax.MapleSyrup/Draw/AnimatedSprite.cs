@@ -28,7 +28,7 @@ namespace SamllHax.MapleSyrup.Draw
             currentFrame.Sprite.Draw(canvas, this.GetTransformMatrix(matrix));
         }
 
-        public SKRectI GetBoundingBox()
+        public virtual SKRectI GetBoundingBox()
         {
             var currentFrame = Frames[FrameId];
             return this.TransformBoundingBox(currentFrame.Sprite.GetBoundingBox());
@@ -77,9 +77,17 @@ namespace SamllHax.MapleSyrup.Draw
 
         public void Reset()
         {
-            FrameId = 0;
+            if (AnimationType == AnimationType.Random)
+            {
+                FrameId = GlobalRandom.GetNext(0, Frames.Count);
+                Complete = true;
+            }
+            else
+            {
+                FrameId = 0;
+                Complete = false;
+            }
             Timer = 0;
-            Complete = false;
             Direction = 1;
         }
     }
