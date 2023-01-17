@@ -1,5 +1,4 @@
-﻿using SamllHax.MapleSyrup.IO;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SamllHax.MapleSyrup.Interfaces.Providers;

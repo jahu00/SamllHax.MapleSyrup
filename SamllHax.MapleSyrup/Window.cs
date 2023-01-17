@@ -10,9 +10,9 @@ using SamllHax.MapleSyrup.Interfaces.Data;
 using SamllHax.MapleSyrup.Providers.Dumper.Data;
 using SkiaSharp;
 
-namespace SamllHax.MapleSyrup.IO
+namespace SamllHax.MapleSyrup
 {
-    public class Window: GameWindow, IBoundable
+    public class Window : GameWindow, IBoundable
     {
         private readonly IConfiguration _windowConfiguration;
         private readonly ObjectFactory _objectFactory;
@@ -42,7 +42,7 @@ namespace SamllHax.MapleSyrup.IO
             ResourceManager resourceManager,
             ObjectFactory objectFactory,
             CommonData commonData
-        ): base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
+        ) : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
         {
             _configuration = configuration;
             _windowConfiguration = configuration.GetSection("Window");
@@ -123,8 +123,8 @@ namespace SamllHax.MapleSyrup.IO
             surface?.Dispose();
             surface = SKSurface.Create(grContext, renderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
             canvas = surface.Canvas;
-            var xScale = (float)args.Width / (float)_windowConfiguration.GetValue<int>("Width");
-            var yScale = (float)args.Height / (float)_windowConfiguration.GetValue<int>("Height");
+            var xScale = args.Width / (float)_windowConfiguration.GetValue<int>("Width");
+            var yScale = args.Height / (float)_windowConfiguration.GetValue<int>("Height");
             Scale = Math.Min(xScale, yScale);
             InternalResolution = new Vector2i(Convert.ToInt32(args.Width / Scale), Convert.ToInt32(args.Height / Scale));
             BoundingBox = new SKRectI(0, 0, InternalResolution.X, InternalResolution.Y);
