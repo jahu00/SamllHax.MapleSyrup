@@ -24,7 +24,7 @@ namespace SamllHax.MapleSyrup
                     services.AddSingleton<ComponentHelper>();
                     services.AddSingleton<CommonData>();
                     //services.AddSingleton<MapRenderer>();
-                    services.AddSingleton<Window>();
+                    services.AddSingleton<Game>();
                 }).Build();
 
             /*var resourceManager = ActivatorUtilities.CreateInstance<ResourceManager>(host.Services);
@@ -41,7 +41,7 @@ namespace SamllHax.MapleSyrup
             using var stream = File.OpenWrite("render.png");
             bitmap.Encode(stream, SkiaSharp.SKEncodedImageFormat.Png, 100);*/
 
-            var window = ActivatorUtilities.CreateInstance<Window>(host.Services);
+            var window = ActivatorUtilities.CreateInstance<Game>(host.Services);
             window.Run();
             return;
         }

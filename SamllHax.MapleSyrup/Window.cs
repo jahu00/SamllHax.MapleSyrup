@@ -12,7 +12,7 @@ using SkiaSharp;
 
 namespace SamllHax.MapleSyrup
 {
-    public class Window : GameWindow, IBoundable
+    public class Game : GameWindow, IBoundable
     {
         private readonly IConfiguration _windowConfiguration;
         private readonly ObjectFactory _objectFactory;
@@ -36,7 +36,7 @@ namespace SamllHax.MapleSyrup
         private MapInstance _mapInstance;
         private SceneCamera<MapInstance> _camera;
 
-        public Window
+        public Game
         (
             IConfiguration configuration,
             ResourceManager resourceManager,
