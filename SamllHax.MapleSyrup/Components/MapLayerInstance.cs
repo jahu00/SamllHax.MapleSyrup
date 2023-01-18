@@ -2,6 +2,7 @@
 using SamllHax.MapleSyrup.Helpers;
 using SamllHax.MapleSyrup.Interfaces.Data;
 using SamllHax.MapleSyrup.Interfaces.Interfaces.Providers;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,8 @@ namespace SamllHax.MapleSyrup.Components
 
         public DrawableCollection Tiles { get; private set; }
         public DrawableCollection Objects { get; private set; }
+
+        private SKRectI? BoudingBox { get; set; }
 
         public MapLayerInstance(ResourceManager resourceManager, ComponentHelper componentHelper)
         {
@@ -79,6 +82,20 @@ namespace SamllHax.MapleSyrup.Components
                 }
             ).ToList();
             return new DrawableCollection(drawables);
+        }
+
+        public override void Update(int delta)
+        {
+            Objects.Update(delta);
+        }
+
+        public override SKRectI GetBoundingBox()
+        {
+            if (BoudingBox == null)
+            {
+                BoudingBox = base.GetBoundingBox();
+            }
+            return BoudingBox.Value;
         }
     }
 }

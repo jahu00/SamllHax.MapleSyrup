@@ -70,6 +70,7 @@ namespace SamllHax.MapleSyrup.Providers.Dumper
                 case "extended":
                     node = new WzExtended();
                     break;
+                case "short":
                 case "int":
                     node = new WzIntValue() { Value = xml.Attribute("value").ValueAsInt() };
                     break;

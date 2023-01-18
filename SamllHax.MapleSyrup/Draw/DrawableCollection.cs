@@ -21,7 +21,7 @@ namespace SamllHax.MapleSyrup.Draw
             Children.AddRange(drawables);
         }
 
-        public void Draw(SKCanvas canvas, SKMatrix matrix)
+        public virtual void Draw(SKCanvas canvas, SKMatrix matrix)
         {
             foreach(var drawable in Children)
             {
@@ -30,7 +30,7 @@ namespace SamllHax.MapleSyrup.Draw
 
         }
 
-        public SKRectI GetBoundingBox()
+        public virtual SKRectI GetBoundingBox()
         {
             var top = 0;
             var left = 0;
@@ -64,7 +64,7 @@ namespace SamllHax.MapleSyrup.Draw
             return this.TransformBoundingBox(new SKRectI() { Top = top, Left = left, Bottom = bottom, Right = right });
         }
 
-        public void Update(int delta)
+        public virtual void Update(int delta)
         {
             foreach (var sprite in Children)
             {

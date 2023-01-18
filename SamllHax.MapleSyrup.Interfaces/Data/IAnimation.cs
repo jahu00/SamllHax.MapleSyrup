@@ -7,11 +7,12 @@ namespace SamllHax.MapleSyrup.Interfaces.Data
     public interface IAnimation : IEntity
     {
         Dictionary<string, IFrame> Frames { get; }
-        List<IVector> Seat { get; }
-        List<IVector> Foothold { get; }
-        List<IVector> Ladder { get; }
-        List<IVector> Rope { get; }
+        List<IVectorCollection> Seat { get; }
+        List<IVectorCollection> Foothold { get; }
+        List<IVectorCollection> Ladder { get; }
+        List<IVectorCollection> Rope { get; }
         int? Blend { get; }
         int? ZigZag { get; }
+        IVector Origin { get; }
     }
 }

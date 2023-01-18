@@ -1,5 +1,9 @@
-﻿using System;
+﻿using SamllHax.MapleSyrup.Interfaces.Data;
+using SamllHax.MapleSyrup.Providers.Dumper.Data;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -53,6 +57,43 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Nodes
                 throw new Exception($"Node of invalid type, expected WzInt or WzString, got {child.GetType().Name}");
             }
             return Convert.ToInt32(stringNode.Value);
+        }
+
+        public List<IVectorCollection> GetVectorCollections(string name)
+        {
+            var matchingChildren = Children.Where(x => x.Name == name).ToArray();
+            if (matchingChildren.Count() == 0)
+            {
+                return null;
+            }
+            if (matchingChildren.All(x => x is WzVector))
+            {
+                return new List<IVectorCollection>() { new WzVectorCollection(this, matchingChildren.Cast<WzVector>().ToList()) };
+            }
+            if (matchingChildren.Count() > 1)
+            {
+                throw new Exception($"Expected no more than child with name {name}");
+            }
+            var child = matchingChildren.Single();
+            var extendedChild = child as WzExtended;
+            if (extendedChild != null)
+            {
+                return new List<IVectorCollection>() { extendedChild.ToVectorCollection() };
+            }
+            var directoryChild = child as WzDirectory;
+            if (directoryChild == null)
+            {
+                throw new Exception($"Unupported VectorCollection of type {directoryChild.GetType().Name}");
+            }
+            if (directoryChild.Children.All(x => x is WzVector))
+            {
+                return new List<IVectorCollection>() { new WzVectorCollection(this, directoryChild.Children.Cast<WzVector>().ToList()) };
+            }
+            if (directoryChild.Children.All(x => x is WzExtended))
+            {
+                return directoryChild.Children.Cast<WzExtended>().Select(x => x.ToVectorCollection()).ToList<IVectorCollection>();
+            }
+            throw new Exception($"Unsupported VectorCollection");
         }
     }
 }

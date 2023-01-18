@@ -45,7 +45,7 @@ namespace SamllHax.MapleSyrup
             ObjectFactory objectFactory,
             ComponentHelper componentHelper,
             CommonData commonData
-        ) : base(new GameWindowSettings() { RenderFrequency = 75, UpdateFrequency = 60 }, new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
+        ) : base(/*new GameWindowSettings() { RenderFrequency = 75, UpdateFrequency = 60 }*/ GameWindowSettings.Default, new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
         {
             _configuration = configuration;
             _windowConfiguration = configuration.GetSection("Window");
@@ -53,7 +53,7 @@ namespace SamllHax.MapleSyrup
             _componentHelper = componentHelper;
             _resourceManager = resourceManager;
             _commonData = commonData;
-            //VSync = VSyncMode.On;
+            VSync = VSyncMode.On;
         }
 
         protected override void OnLoad()
@@ -135,7 +135,7 @@ namespace SamllHax.MapleSyrup
                 var portalInstance = _mapInstance.Portals.Children.Cast<PortalInstance>().FirstOrDefault(x => x.GetBoundingBox().Contains((int)_mapInstance.Character.X, (int)_mapInstance.Character.Y));
                 if (portalInstance != null && portalInstance.MapPortal.TargetMapId < 999999999)
                 {
-                    if (portalInstance.MapPortal.TargetMapId.ToString() == _mapInstance.Map.Name)
+                     if (portalInstance.MapPortal.TargetMapId.ToString() == _mapInstance.Map.Name)
                     {
                         _mapInstance.Character.X = portalInstance.X;
                         _mapInstance.Character.Y = portalInstance.Y;
