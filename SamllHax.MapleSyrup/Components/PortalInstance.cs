@@ -19,7 +19,7 @@ namespace SamllHax.MapleSyrup.Components
             Drawable = drawable;
         }
 
-        public void Update(int delta)
+        public void Update(double delta)
         {
             var updatable = Drawable as IUpdatable;
             updatable?.Update(delta);

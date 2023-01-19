@@ -56,7 +56,7 @@ namespace SamllHax.MapleSyrup.Components
                 {
                     var tileBitmap = _resourceManager.GetTileImage(this, mapLayer.TileSetName, tile.Path);
                     var tileData = tileSet.GetEntityByPath(tile.Path);
-                    return (IDrawable)new Sprite() { Bitmap = tileBitmap, X = tile.X, OriginX = tileData.Origin.X, Y = tile.Y, OriginY = tileData.Origin.Y };
+                    return (IDrawable)new Sprite() { Image = tileBitmap, X = tile.X, OriginX = tileData.Origin.X, Y = tile.Y, OriginY = tileData.Origin.Y };
                 }
             ).ToList();
             return new DrawableCollection(drawables);
@@ -84,7 +84,7 @@ namespace SamllHax.MapleSyrup.Components
             return new DrawableCollection(drawables);
         }
 
-        public override void Update(int delta)
+        public override void Update(double delta)
         {
             Objects.Update(delta);
         }

@@ -19,6 +19,7 @@ namespace SamllHax.MapleSyrup
                 .ConfigureServices((context, services) =>
                 {
                     services.AddSingleton<FpsCounter>();
+                    services.AddSingleton<GrContextManager>();
                     services.AddSingleton<IResourceProvider, DumperResourceProvider>();
                     services.AddSingleton<ObjectFactory>();
                     services.AddSingleton<ResourceManager>();

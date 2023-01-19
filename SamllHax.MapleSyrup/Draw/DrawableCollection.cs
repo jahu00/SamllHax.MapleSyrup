@@ -64,7 +64,7 @@ namespace SamllHax.MapleSyrup.Draw
             return this.TransformBoundingBox(new SKRectI() { Top = top, Left = left, Bottom = bottom, Right = right });
         }
 
-        public virtual void Update(int delta)
+        public virtual void Update(double delta)
         {
             foreach (var sprite in Children)
             {

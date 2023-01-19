@@ -33,7 +33,7 @@ namespace SamllHax.MapleSyrup.Components
             {
                 /*X = BoundingBox.Left,
                 Y = BoundingBox.MidY,*/
-                Bitmap = _resourceManager.GetMobImage(this, "0100100", "stand", "0"),
+                Image = _resourceManager.GetMobImage(this, "0100100", "stand", "0"),
                 //ScaleX = -1,
                 OriginX = 18,
                 OriginY = 26
@@ -79,7 +79,7 @@ namespace SamllHax.MapleSyrup.Components
             Portals.Draw(canvas, this.GetTransformMatrix(matrix));
         }
 
-        public void Update(int delta)
+        public void Update(double delta)
         {
             Layers.Update(delta);
             Portals.Update(delta);
