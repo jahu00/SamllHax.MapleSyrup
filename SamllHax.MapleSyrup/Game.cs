@@ -37,6 +37,8 @@ namespace SamllHax.MapleSyrup
 
         private MapInstance _mapInstance;
         private SceneCamera<MapInstance> _camera;
+        private List<double> FrameTimes = new List<double>();
+        private double FrameTimer = 0;
 
         public Game
         (
@@ -53,7 +55,7 @@ namespace SamllHax.MapleSyrup
             _componentHelper = componentHelper;
             _resourceManager = resourceManager;
             _commonData = commonData;
-            VSync = VSyncMode.On;
+            //VSync = VSyncMode.On;
         }
 
         protected override void OnLoad()
@@ -86,15 +88,32 @@ namespace SamllHax.MapleSyrup
 
         protected override void OnRenderFrame(FrameEventArgs args)
         {
+            FrameTimer += args.Time;
+            FrameTimes.Add(args.Time);
+            if (FrameTimer >= 5)
+            {
+                ShowFpsStats();
+                FrameTimer = 0;
+                FrameTimes.Clear();
+            }
             //var delta = Convert.ToInt32(args.Time * 1000d);
             //timer += args.Time;
             canvas.Clear(SKColors.CornflowerBlue);
             _camera.Draw(canvas, BaseMatrix);
             canvas.Flush();
             SwapBuffers();
-            var fps = Convert.ToInt32(1 / args.Time);
+            /*var fps = Convert.ToInt32(1 / args.Time);
             Title = $"FPS: {fps}";
-            base.OnRenderFrame(args);
+            base.OnRenderFrame(args);*/
+        }
+
+        private void ShowFpsStats()
+        {
+            var average = Convert.ToInt32(1 / FrameTimes.Average());
+            var min = Convert.ToInt32(1 / FrameTimes.Max());
+            var max = Convert.ToInt32(1 / FrameTimes.Min());
+            var min99 = Convert.ToInt32(1 / FrameTimes.OrderByDescending(x => x).Take((int)Math.Ceiling(FrameTimes.Count * 0.01)).Last());
+            Console.WriteLine($"Measure time {FrameTimer.ToString("0.00")}ms; fps: {max}/{average}/{min}/{min99}");
         }
 
         protected override void OnUpdateFrame(FrameEventArgs args)
