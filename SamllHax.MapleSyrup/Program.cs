@@ -18,6 +18,7 @@ namespace SamllHax.MapleSyrup
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
                 {
+                    services.AddSingleton<FpsCounter>();
                     services.AddSingleton<IResourceProvider, DumperResourceProvider>();
                     services.AddSingleton<ObjectFactory>();
                     services.AddSingleton<ResourceManager>();

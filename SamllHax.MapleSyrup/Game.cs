@@ -15,13 +15,12 @@ namespace SamllHax.MapleSyrup
 {
     public class Game : GameWindow, IBoundable
     {
-        private readonly IConfiguration _windowConfiguration;
         private readonly ObjectFactory _objectFactory;
         private readonly ComponentHelper _componentHelper;
         private readonly IConfiguration _configuration;
         private readonly ResourceManager _resourceManager;
         private readonly CommonData _commonData;
-
+        private readonly FpsCounter _fpsCounter;
         private GRGlInterface grgInterface;
         private GRContext grContext;
         private GRBackendRenderTarget renderTarget;
@@ -37,6 +36,8 @@ namespace SamllHax.MapleSyrup
 
         private MapInstance _mapInstance;
         private SceneCamera<MapInstance> _camera;
+        private List<double> FrameTimes = new List<double>();
+        private double FrameTimer = 0;
 
         public Game
         (
@@ -44,16 +45,20 @@ namespace SamllHax.MapleSyrup
             ResourceManager resourceManager,
             ObjectFactory objectFactory,
             ComponentHelper componentHelper,
-            CommonData commonData
-        ) : base(/*new GameWindowSettings() { RenderFrequency = 75, UpdateFrequency = 60 }*/ GameWindowSettings.Default, new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
+            CommonData commonData,
+            FpsCounter fpsCounter
+        ) : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
         {
-            _configuration = configuration;
-            _windowConfiguration = configuration.GetSection("Window");
+            _configuration = configuration.GetSection("Window");
             _objectFactory = objectFactory;
             _componentHelper = componentHelper;
             _resourceManager = resourceManager;
             _commonData = commonData;
-            VSync = VSyncMode.On;
+            _fpsCounter = fpsCounter;
+            if (_configuration.GetValue<bool>("VSync"))
+            {
+                VSync = VSyncMode.On;
+            }
         }
 
         protected override void OnLoad()
@@ -86,15 +91,13 @@ namespace SamllHax.MapleSyrup
 
         protected override void OnRenderFrame(FrameEventArgs args)
         {
+            _fpsCounter.PushTime(args.Time);
             //var delta = Convert.ToInt32(args.Time * 1000d);
             //timer += args.Time;
             canvas.Clear(SKColors.CornflowerBlue);
             _camera.Draw(canvas, BaseMatrix);
             canvas.Flush();
             SwapBuffers();
-            var fps = Convert.ToInt32(1 / args.Time);
-            Title = $"FPS: {fps}";
-            base.OnRenderFrame(args);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs args)
@@ -156,8 +159,8 @@ namespace SamllHax.MapleSyrup
             surface?.Dispose();
             surface = SKSurface.Create(grContext, renderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
             canvas = surface.Canvas;
-            var xScale = args.Width / (float)_windowConfiguration.GetValue<int>("Width");
-            var yScale = args.Height / (float)_windowConfiguration.GetValue<int>("Height");
+            var xScale = args.Width / (float)_configuration.GetValue<int>("Width");
+            var yScale = args.Height / (float)_configuration.GetValue<int>("Height");
             Scale = Math.Min(xScale, yScale);
             InternalResolution = new Vector2i(Convert.ToInt32(args.Width / Scale), Convert.ToInt32(args.Height / Scale));
             BoundingBox = new SKRectI(0, 0, InternalResolution.X, InternalResolution.Y);
