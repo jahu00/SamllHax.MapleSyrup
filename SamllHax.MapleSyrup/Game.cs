@@ -161,7 +161,6 @@ namespace SamllHax.MapleSyrup
             Scale = Math.Min(xScale, yScale);
             InternalResolution = new Vector2i(Convert.ToInt32(args.Width / Scale), Convert.ToInt32(args.Height / Scale));
             BoundingBox = new SKRectI(0, 0, InternalResolution.X, InternalResolution.Y);
-            //canvas.Scale(Scale);
             BaseMatrix = SKMatrix.CreateScale(Scale, Scale);
             base.OnResize(args);
         }

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using SamllHax.MapleSyrup.Interfaces.Providers;
 using SamllHax.MapleSyrup.Providers.Dumper;
 using SamllHax.MapleSyrup.Helpers;
+using Microsoft.Extensions.Logging;
 
 namespace SamllHax.MapleSyrup
 {
@@ -15,7 +16,7 @@ namespace SamllHax.MapleSyrup
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
 
-            var host = Host.CreateDefaultBuilder()
+            var hostBuilder = Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
                 {
                     services.AddSingleton<FpsCounter>();
@@ -27,7 +28,11 @@ namespace SamllHax.MapleSyrup
                     services.AddSingleton<CommonData>();
                     //services.AddSingleton<MapRenderer>();
                     services.AddSingleton<Game>();
-                }).Build();
+                });
+
+            hostBuilder.ConfigureLogging(logging => { logging.AddConsole(); });
+
+            var host = hostBuilder.Build();
 
             /*var resourceManager = ActivatorUtilities.CreateInstance<ResourceManager>(host.Services);
             var mapInstance = new MapInstance(resourceManager, 100010100);*/
