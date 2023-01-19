@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SamllHax.MapleSyrup
 {
-    public class CachedResourceWrapper
+    public class CachedResourceWrapper: IDisposable
     {
         public List<object> Owners { get; } = new List<object>();
         public object Resource { get; }
@@ -21,6 +21,16 @@ namespace SamllHax.MapleSyrup
         public T Cast<T>()
         {
             return (T)Resource;
+        }
+
+        public void Dispose()
+        {
+            var disposableResource = Resource as IDisposable;
+            if (disposableResource == null)
+            {
+                return;
+            }
+            disposableResource?.Dispose();
         }
     }
 }

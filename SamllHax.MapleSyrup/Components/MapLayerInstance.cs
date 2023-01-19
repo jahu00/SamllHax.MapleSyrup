@@ -70,7 +70,7 @@ namespace SamllHax.MapleSyrup.Components
                 {
                     var objectDirectory = _resourceManager.GetObjectDirectory(this, obj.DirectoryName);
                     var objectData = objectDirectory.GetEntityByPath(obj.Path);
-                    return (IDrawable)_componentHelper.CreateAnimationInstance
+                    var component = _componentHelper.CreateAnimationInstance
                     (
                         owner: Parent,
                         animation: objectData,
@@ -79,8 +79,13 @@ namespace SamllHax.MapleSyrup.Components
                         x: obj.X,
                         y: obj.Y
                     );
+                    if (obj.FlipX)
+                    {
+                        component.ScaleX = -1;
+                    }
+                    return component;
                 }
-            ).ToList();
+            );
             return new DrawableCollection(drawables);
         }
 

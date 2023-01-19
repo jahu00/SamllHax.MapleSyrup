@@ -85,8 +85,15 @@ namespace SamllHax.MapleSyrup
 
         public void FreeResources()
         {
-            var abandonedReourceKeys = ResourceCache.Where(x => x.Value.IsAbandoned).Select(x => x.Key).ToList();
-            abandonedReourceKeys.ForEach(key => ResourceCache.Remove(key));
+            var abandonedReourcePairs = ResourceCache.Where(x => x.Value.IsAbandoned).Select(x => new { Key = x.Key, Value = x.Value }).ToList();
+            abandonedReourcePairs.ForEach
+            (
+                pair =>
+                {
+                    pair.Value.Dispose();
+                    ResourceCache.Remove(pair.Key);
+                }
+            );
         }
 
         public SKImage GetTileImage(object owner, string tileSetName, string[] path)

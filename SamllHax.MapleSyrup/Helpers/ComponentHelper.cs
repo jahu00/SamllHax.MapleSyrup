@@ -31,7 +31,7 @@ namespace SamllHax.MapleSyrup.Helpers
 
         public AnimationInstance CreateAnimationInstance(object owner, IAnimation animation, DataFiles dataFile, IEnumerable<string> path, int x, int y)
         {
-            var frameIds = animation.Frames.Select(x => x.Key).ToArray();
+            var frameIds = animation.Frames.Select(x => x.Value.FramePath ?? x.Key).ToArray();
             var bitmaps = _resourceManager.GetImages(owner, dataFile, path, frameIds);
             var component = new AnimationInstance(animation, bitmaps) { X = x, Y = y };
             return component;

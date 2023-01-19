@@ -29,6 +29,7 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
             {
                 Footholds = _directory.GetSingleOrDefaultChild<WzDirectory>("foothold").Children.Select(x => (IFoothold)new WzFoothold((WzExtended)x)).ToList();
             }
+            FramePath = directory.FramePath;
         }
 
         public int Width { get; }
@@ -39,5 +40,6 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
         public int? Alpha0 { get; }
         public int? Alpha1 { get; }
         public List<IFoothold> Footholds { get; }
+        public string FramePath { get; }
     }
 }
