@@ -18,16 +18,18 @@ namespace SamllHax.MapleSyrup
     public class ResourceManager
     {
         private readonly IResourceProvider _resourceProvider;
+        private readonly GrContextManager _contextManager;
         private readonly IConfiguration _configuration;
 
         //public Dictionary<string, WzTileSet> TileSetCatche { get; } = new Dictionary<string, WzTileSet>();
         public Dictionary<string, CachedResourceWrapper> ResourceCache { get; } = new Dictionary<string, CachedResourceWrapper>();
         public Dictionary<object, List<CachedResourceWrapper>> OwnerIndex { get; } = new Dictionary<object, List<CachedResourceWrapper>>();
 
-        public ResourceManager(IConfiguration configuration, IResourceProvider resourceProvider)
+        public ResourceManager(IConfiguration configuration, IResourceProvider resourceProvider, GrContextManager contextManager)
         {
             //_configuration = configuration.GetSection("DumperResourceManager");
             _resourceProvider = resourceProvider;
+            _contextManager = contextManager;
         }
 
         public IMap GetMap(object owner, int id)
@@ -87,39 +89,39 @@ namespace SamllHax.MapleSyrup
             abandonedReourceKeys.ForEach(key => ResourceCache.Remove(key));
         }
 
-        public SKBitmap GetTileImage(object owner, string tileSetName, string[] path)
+        public SKImage GetTileImage(object owner, string tileSetName, string[] path)
         {
             var key = $"TileSet-{tileSetName}-{string.Join("-", path)}";
-            return GetFromCache(key, owner, () => _resourceProvider.GetTileImage(tileSetName, path).ToBitmap());
+            return GetFromCache(key, owner, () => _resourceProvider.GetTileImage(tileSetName, path).ToImage());
         }
 
-        public SKBitmap GetObjectImage(object owner, string objectDirectoryName, string[] path, string frameId)
+        public SKImage GetObjectImage(object owner, string objectDirectoryName, string[] path, string frameId)
         {
             var key = $"Obj-{objectDirectoryName}-{string.Join("-", path)}-{frameId}";
-            return GetFromCache(key, owner, () => _resourceProvider.GetObjectImage(objectDirectoryName, path, frameId).ToBitmap());
+            return GetFromCache(key, owner, () => _resourceProvider.GetObjectImage(objectDirectoryName, path, frameId).ToImage());
         }
 
-        public SKBitmap GetMobImage(object owner, string mobId, string animation, string frameId)
+        public SKImage GetMobImage(object owner, string mobId, string animation, string frameId)
         {
             var key = $"Mob-{mobId}-{animation}-{frameId}";
-            return GetFromCache(key, owner, () => _resourceProvider.GetMobImage(mobId, animation, frameId).ToBitmap());
+            return GetFromCache(key, owner, () => _resourceProvider.GetMobImage(mobId, animation, frameId).ToImage());
         }
 
-        public SKBitmap GetImage(object owner, string file, string[] path, string frameId)
+        public SKImage GetImage(object owner, string file, string[] path, string frameId)
         {
             var key = $"{file}-{string.Join("-", path)}-{frameId}";
-            return GetFromCache(key, owner, () => _resourceProvider.GetImage(file, path, frameId).ToBitmap());
+            return GetFromCache(key, owner, () => _resourceProvider.GetImage(file, path, frameId).ToImage());
         }
 
-        public Dictionary<string, SKBitmap> GetImages(object owner, DataFiles dataFile, IEnumerable<string> path, IEnumerable<string> frameIds)
+        public Dictionary<string, SKImage> GetImages(object owner, DataFiles dataFile, IEnumerable<string> path, IEnumerable<string> frameIds)
         {
             return GetImages(owner, dataFile.ToString(), path, frameIds);
         }
 
-        public Dictionary<string, SKBitmap> GetImages(object owner, string file, IEnumerable<string> path, IEnumerable<string> frameIds)
+        public Dictionary<string, SKImage> GetImages(object owner, string file, IEnumerable<string> path, IEnumerable<string> frameIds)
         {
             var key = $"{file}-{string.Join("-", path)}-frames";
-            return GetFromCache(key, owner, () => frameIds.Select(frameId => new { FrameId = frameId, Bitmap = _resourceProvider.GetImage(file, path, frameId).ToBitmap() }).ToDictionary(x => x.FrameId, x => x.Bitmap));
+            return GetFromCache(key, owner, () => frameIds.Select(frameId => new { FrameId = frameId, Bitmap = _resourceProvider.GetImage(file, path, frameId).ToImage() }).ToDictionary(x => x.FrameId, x => x.Bitmap));
         }
 
     }

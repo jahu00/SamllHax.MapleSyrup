@@ -14,19 +14,20 @@ namespace SamllHax.MapleSyrup.Components
 {
     public class AnimationInstance: AnimatedSprite
     {
-        public AnimationInstance(IAnimation animationData, Dictionary<string, SKBitmap> bitmaps): base()
+        public AnimationInstance(IAnimation animationData, Dictionary<string, SKImage> images)
         {
-            Frames.AddRange(GetFrames(animationData, bitmaps));
+            Frames.AddRange(GetFrames(animationData, images));
+            Reset();
         }
 
-        private IEnumerable<Frame> GetFrames(IAnimation animationData, Dictionary<string, SKBitmap> bitmaps)
+        private IEnumerable<Frame> GetFrames(IAnimation animationData, Dictionary<string, SKImage> images)
         {
             foreach (var ( key, frameData ) in animationData.Frames.OrderBy(x => Convert.ToInt32(x.Key)))
             {
                 yield return new Frame()
                 {
                     Delay = frameData.Delay ?? Constants.DefaultDelay,
-                    Sprite = new Sprite() { Bitmap = bitmaps[key], OriginX = frameData.Origin.X, OriginY = frameData.Origin.Y }
+                    Sprite = new Sprite() { Image = images[key], OriginX = frameData.Origin.X, OriginY = frameData.Origin.Y }
                 };
             }
         }

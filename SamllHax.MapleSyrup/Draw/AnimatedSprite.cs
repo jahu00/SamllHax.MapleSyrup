@@ -10,7 +10,7 @@ namespace SamllHax.MapleSyrup.Draw
     public class AnimatedSprite : DrawableBase, IDrawable, IUpdatable, IBoundable
     {
         public int FrameId { get; private set; }
-        public int Timer { get; private set; }
+        public double Timer { get; private set; }
         public List<Frame> Frames { get; set; } = new List<Frame>();
         public AnimationType AnimationType { get; set; } = AnimationType.NormalLoop;
         public bool Complete { get; private set; }
@@ -34,7 +34,7 @@ namespace SamllHax.MapleSyrup.Draw
             return this.TransformBoundingBox(currentFrame.Sprite.GetBoundingBox());
         }
 
-        public void Update(int delta)
+        public void Update(double delta)
         {
             if (Complete || delta <= 0)
             {

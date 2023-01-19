@@ -27,7 +27,7 @@ namespace SamllHax.MapleSyrup
                     var objectData = objectGroupData.GetEntityByPath(obj.Path);
                     var objectPartFrameData = objectData.Frames.Values.First();
                     var objectBitmap = _resourceManager.GetObjectImage(this, obj.DirectoryName, obj.Path, objectPartFrameData.Name);
-                    objectSprites.Add(new Sprite() { Bitmap = objectBitmap, X = obj.X - objectPartFrameData.Origin.X, Y = obj.Y - objectPartFrameData.Origin.Y });
+                    objectSprites.Add(new Sprite() { Image = objectBitmap, X = obj.X - objectPartFrameData.Origin.X, Y = obj.Y - objectPartFrameData.Origin.Y });
                 }
                 new DrawableCollection(objectSprites).Draw(canvas, matrix);
 
@@ -42,7 +42,7 @@ namespace SamllHax.MapleSyrup
                     var tileBitmap = _resourceManager.GetTileImage(this, layer.TileSetName, tile.Path);
                     var tileData = tileSet.GetEntityByPath(tile.Path);
                     //var z = tile.Z
-                    tileSprites.Add(new Sprite() { Bitmap = tileBitmap, X = tile.X - tileData.Origin.X, Y = tile.Y - tileData.Origin.Y });
+                    tileSprites.Add(new Sprite() { Image = tileBitmap, X = tile.X - tileData.Origin.X, Y = tile.Y - tileData.Origin.Y });
                     //canvas.DrawBitmap(tileBitmap, tile.X - tileData.Origin.X + x, tile.Y - tileData.Origin.Y + y);
                 }
                 new DrawableCollection(tileSprites).Draw(canvas, matrix);

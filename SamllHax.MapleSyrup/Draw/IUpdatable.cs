@@ -8,6 +8,6 @@ namespace SamllHax.MapleSyrup.Draw
 {
     public interface IUpdatable
     {
-        void Update(int delta);
+        void Update(double delta);
     }
 }

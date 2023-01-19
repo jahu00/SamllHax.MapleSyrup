@@ -14,5 +14,11 @@ namespace SamllHax.MapleSyrup.Extensions
             canvas.SetMatrix(matrix);
             canvas.DrawBitmap(bitmap, 0, 0);
         }
+
+        public static void DrawImage(this SKCanvas canvas, SKImage bitmap, SKMatrix matrix)
+        {
+            canvas.SetMatrix(matrix);
+            canvas.DrawImage(bitmap, 0, 0);
+        }
     }
 }

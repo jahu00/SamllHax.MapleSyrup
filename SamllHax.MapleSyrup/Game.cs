@@ -21,8 +21,7 @@ namespace SamllHax.MapleSyrup
         private readonly ResourceManager _resourceManager;
         private readonly CommonData _commonData;
         private readonly FpsCounter _fpsCounter;
-        private GRGlInterface grgInterface;
-        private GRContext grContext;
+        private readonly GrContextManager _contextManager;
         private GRBackendRenderTarget renderTarget;
         private SKSurface surface;
         private SKCanvas canvas;
@@ -32,12 +31,10 @@ namespace SamllHax.MapleSyrup
         private SKRectI BoundingBox;
         private SKMatrix BaseMatrix;
 
-        private double timer = 0;
+        //private double timer = 0;
 
         private MapInstance _mapInstance;
         private SceneCamera<MapInstance> _camera;
-        private List<double> FrameTimes = new List<double>();
-        private double FrameTimer = 0;
 
         public Game
         (
@@ -46,7 +43,8 @@ namespace SamllHax.MapleSyrup
             ObjectFactory objectFactory,
             ComponentHelper componentHelper,
             CommonData commonData,
-            FpsCounter fpsCounter
+            FpsCounter fpsCounter,
+            GrContextManager contextManager
         ) : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
         {
             _configuration = configuration.GetSection("Window");
@@ -55,6 +53,7 @@ namespace SamllHax.MapleSyrup
             _resourceManager = resourceManager;
             _commonData = commonData;
             _fpsCounter = fpsCounter;
+            _contextManager = contextManager;
             if (_configuration.GetValue<bool>("VSync"))
             {
                 VSync = VSyncMode.On;
@@ -64,8 +63,8 @@ namespace SamllHax.MapleSyrup
         protected override void OnLoad()
         {
             base.OnLoad();
-            grgInterface = GRGlInterface.Create();
-            grContext = GRContext.CreateGl(grgInterface);
+            _contextManager.Init();
+            _commonData.Init();
             InitMap(100000000, null);
         }
 
@@ -84,8 +83,6 @@ namespace SamllHax.MapleSyrup
         {
             surface.Dispose();
             renderTarget.Dispose();
-            grContext.Dispose();
-            grgInterface.Dispose();
             base.OnUnload();
         }
 
@@ -102,8 +99,8 @@ namespace SamllHax.MapleSyrup
 
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
-            var delta = Convert.ToInt32(args.Time * 1000d);
-            timer += args.Time;
+            var delta = args.Time * 1000d;
+            //timer += args.Time;
             _mapInstance.Update(delta);
 
             var speed = 500;
@@ -157,7 +154,7 @@ namespace SamllHax.MapleSyrup
             renderTarget?.Dispose();
             renderTarget = new GRBackendRenderTarget(args.Width, args.Height, 0, 8, new GRGlFramebufferInfo(0, (uint)SizedInternalFormat.Rgba8));
             surface?.Dispose();
-            surface = SKSurface.Create(grContext, renderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
+            surface = SKSurface.Create(_contextManager.GRContext, renderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
             canvas = surface.Canvas;
             var xScale = args.Width / (float)_configuration.GetValue<int>("Width");
             var yScale = args.Height / (float)_configuration.GetValue<int>("Height");

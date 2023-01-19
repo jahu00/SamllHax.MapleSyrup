@@ -14,5 +14,10 @@ namespace SamllHax.MapleSyrup.Extensions
         {
             return SKBitmap.Decode(stream);
         }
+
+        public static SKImage ToImage(this Stream stream)
+        {
+            return SKImage.FromEncodedData(stream); 
+        }
     }
 }
