@@ -12,7 +12,11 @@ namespace SamllHax.MapleSyrup
     public class CommonData
     {
         private readonly ResourceManager _resourceManager;
+
         public IMapHelpers MapHelpers { get; private set; }
+        public IPhysics Physics { get; private set; }
+
+
         public Dictionary<string, SKImage> PvPortalBitmaps { get; private set; }
         public IAnimation PvPortalAnimation { get; private set; }
 
@@ -27,6 +31,8 @@ namespace SamllHax.MapleSyrup
         public void Init()
         {
             MapHelpers = _resourceManager.GetMapHelpers(this);
+            Physics = _resourceManager.GetPhysics(this);
+
             var portalPathPrefix = new string[] { "MapHelper.img", "portal" };
 
             var pvPortalPath = new string[] { "game", "pv" };

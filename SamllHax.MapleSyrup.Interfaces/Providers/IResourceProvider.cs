@@ -15,6 +15,7 @@ namespace SamllHax.MapleSyrup.Interfaces.Providers
         IEntityDirectory<IAnimation> GetObjectDirectory(string name);
 
         IMapHelpers GetMapHelpers();
+        IPhysics GetPhysics();
 
         Stream GetTileImage(string tileSetName, string[] path);
 

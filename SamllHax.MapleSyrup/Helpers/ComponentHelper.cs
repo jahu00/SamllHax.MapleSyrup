@@ -61,5 +61,13 @@ namespace SamllHax.MapleSyrup.Helpers
             var portalInstance = new PortalInstance(mapPortal, animationInstance) { X = mapPortal.X, Y = mapPortal.Y };
             return portalInstance;
         }
+
+        public PlayerInstance CreatePlayerInstance(IDrawable sprite, MapInstance mapInstance)
+        {
+            var component = _objectFactory.Create<PlayerInstance>();
+            component.Sprite = sprite;
+            component.MapInstance = mapInstance;
+            return component;
+        }
     }
 }

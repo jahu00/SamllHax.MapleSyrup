@@ -52,6 +52,11 @@ namespace SamllHax.MapleSyrup
             return GetFromCache($"MapHelpers", owner, () => _resourceProvider.GetMapHelpers());
         }
 
+        internal IPhysics GetPhysics(object owner)
+        {
+            return GetFromCache($"Physics", owner, () => _resourceProvider.GetPhysics());
+        }
+
         public T GetFromCache<T>(string key, object owner, Func<T> fallback)
         {
             CachedResourceWrapper cachedResourceWrapper;

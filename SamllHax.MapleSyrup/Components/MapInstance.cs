@@ -13,7 +13,7 @@ namespace SamllHax.MapleSyrup.Components
         public IMap Map { get; private set; }
         public DrawableCollection Layers { get; private set; }
         public DrawableCollection Portals { get; private set; }
-        public Sprite Character { get; private set; }
+        public PlayerInstance Character { get; private set; }
         public SKRectI BoundingBox { get; private set; }
 
         public MapInstance(ResourceManager resourceManager, ComponentHelper componentHelper, CommonData commonData)
@@ -29,7 +29,7 @@ namespace SamllHax.MapleSyrup.Components
             Layers = new DrawableCollection(BuildLayers(Map.Layers));
             Portals = new DrawableCollection(BuildPortals(Map.Portals));
             BoundingBox = Layers.GetBoundingBox();
-            Character = new Sprite()
+            var characterSprite = new Sprite()
             {
                 /*X = BoundingBox.Left,
                 Y = BoundingBox.MidY,*/
@@ -38,6 +38,7 @@ namespace SamllHax.MapleSyrup.Components
                 OriginX = 18,
                 OriginY = 26
             };
+            Character = _componentHelper.CreatePlayerInstance(characterSprite, this);
             if (string.IsNullOrEmpty(portalName))
             {
                 var spawnPortals = Map.Portals.Where(x => x.PortalType == PortalType.SPAWN).ToArray();
@@ -83,6 +84,7 @@ namespace SamllHax.MapleSyrup.Components
         {
             Layers.Update(delta);
             Portals.Update(delta);
+            Character.Update(delta);
         }
 
         public SKRectI GetBoundingBox()

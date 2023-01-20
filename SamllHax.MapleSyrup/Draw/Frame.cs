@@ -9,6 +9,6 @@ namespace SamllHax.MapleSyrup.Draw
     public class Frame
     {
         public Sprite Sprite { get; set; }
-        public int Delay { get; set; }
+        public double Delay { get; set; }
     }
 }

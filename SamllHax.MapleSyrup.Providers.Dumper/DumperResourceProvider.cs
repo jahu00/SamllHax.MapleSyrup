@@ -52,6 +52,12 @@ namespace SamllHax.MapleSyrup.Providers.Dumper
             return GetEntityFromXml(relativeFilePath, (node) => new WzMapHelpers(node));
         }
 
+        public IPhysics GetPhysics()
+        {
+            var relativeFilePath = $"Map.wz/Physics";
+            return GetEntityFromXml(relativeFilePath, (node) => new WzPhysics(node));
+        }
+
         public T GetEntityFromXml<T>(string relativePath, Func<WzDirectory, T> getEntity) where T : WzEntity
         {
             var filePath = Path.Combine(_basePath, relativePath + ".img.xml");
@@ -83,6 +89,7 @@ namespace SamllHax.MapleSyrup.Providers.Dumper
                     node = new WzIntValue() { Value = xml.Attribute("value").ValueAsInt() };
                     break;
                 case "float":
+                case "double":
                     node = new WzFloatValue() { Value = xml.Attribute("value").ValueAsFloat() };
                     break;
                 case "string":
@@ -195,5 +202,6 @@ namespace SamllHax.MapleSyrup.Providers.Dumper
         {
             return $"{file}.wz/{string.Join("/", path)}";
         }
+
     }
 }

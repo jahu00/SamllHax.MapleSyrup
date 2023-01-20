@@ -106,7 +106,7 @@ namespace SamllHax.MapleSyrup
 
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
-            var delta = args.Time * 1000d;
+            var delta = args.Time;// * 1000d;
             //timer += args.Time;
             _mapInstance.Update(delta);
 
@@ -121,11 +121,12 @@ namespace SamllHax.MapleSyrup
             }
             if (KeyboardState.IsKeyDown(Keys.Down))
             {
-                _mapInstance.Character.Y += move;
+                //_mapInstance.Character.Y += move;
             }
-            if (KeyboardState.IsKeyDown(Keys.Up))
+            if (KeyboardState.IsKeyPressed(Keys.Up))
             {
-                _mapInstance.Character.Y -= move;
+                //_mapInstance.Character.Y -= move;
+                _mapInstance.Character.SpeedY = -1 * _commonData.Physics.JumpSpeed;
             }
             if (KeyboardState.IsKeyDown(Keys.Left))
             {
