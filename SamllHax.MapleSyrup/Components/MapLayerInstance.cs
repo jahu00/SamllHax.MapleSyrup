@@ -75,10 +75,10 @@ namespace SamllHax.MapleSyrup.Components
                         owner: Parent,
                         animation: objectData,
                         dataFile: DataFiles.Map,
-                        path: obj.GetFullPath(),
-                        x: obj.X,
-                        y: obj.Y
+                        path: obj.GetFullPath()
                     );
+                    component.X = obj.X;
+                    component.Y = obj.Y;
                     if (obj.FlipX)
                     {
                         component.ScaleX = -1;

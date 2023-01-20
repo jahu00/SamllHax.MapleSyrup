@@ -29,11 +29,11 @@ namespace SamllHax.MapleSyrup.Helpers
             return _objectFactory.Create<MapInstance>().Init(mapId, portalName);
         }
 
-        public AnimationInstance CreateAnimationInstance(object owner, IAnimation animation, DataFiles dataFile, IEnumerable<string> path, int x, int y)
+        public AnimationInstance CreateAnimationInstance(object owner, IAnimation animation, DataFiles dataFile, IEnumerable<string> path)
         {
-            var frameIds = animation.Frames.Select(x => x.Value.FramePath ?? x.Key).ToArray();
-            var bitmaps = _resourceManager.GetImages(owner, dataFile, path, frameIds);
-            var component = new AnimationInstance(animation, bitmaps) { X = x, Y = y };
+            var frameIdMappings = animation.Frames.ToDictionary(x => x.Key, x => x.Value.FramePath ?? x.Key);
+            var bitmaps = _resourceManager.GetImages(owner, dataFile, path, frameIdMappings);
+            var component = new AnimationInstance(animation, bitmaps);
             return component;
         }
 

@@ -85,7 +85,7 @@ namespace SamllHax.MapleSyrup
 
         public void FreeResources()
         {
-            var abandonedReourcePairs = ResourceCache.Where(x => x.Value.IsAbandoned).Select(x => new { Key = x.Key, Value = x.Value }).ToList();
+            var abandonedReourcePairs = ResourceCache.Where(x => x.Value.IsAbandoned).Select(x => new { x.Key, x.Value }).ToList();
             abandonedReourcePairs.ForEach
             (
                 pair =>
@@ -131,5 +131,15 @@ namespace SamllHax.MapleSyrup
             return GetFromCache(key, owner, () => frameIds.Select(frameId => new { FrameId = frameId, Bitmap = _resourceProvider.GetImage(file, path, frameId).ToImage() }).ToDictionary(x => x.FrameId, x => x.Bitmap));
         }
 
+        public Dictionary<string, SKImage> GetImages(object owner, DataFiles dataFile, IEnumerable<string> path, IDictionary<string,string> frameIdMappings)
+        {
+            return GetImages(owner, dataFile.ToString(), path, frameIdMappings);
+        }
+
+        public Dictionary<string, SKImage> GetImages(object owner, string file, IEnumerable<string> path, IDictionary<string, string> frameIdMappings)
+        {
+            var key = $"{file}-{string.Join("-", path)}-frames";
+            return GetFromCache(key, owner, () => frameIdMappings.Select(frameIdMapping => new { FrameId = frameIdMapping.Key, Bitmap = _resourceProvider.GetImage(file, path, frameIdMapping.Value).ToImage() }).ToDictionary(x => x.FrameId, x => x.Bitmap));
+        }
     }
 }

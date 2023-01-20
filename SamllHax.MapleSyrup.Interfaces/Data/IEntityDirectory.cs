@@ -13,7 +13,7 @@ namespace SamllHax.MapleSyrup.Interfaces.Data
 
     public static class EntityDirectoryExtensions
     {
-        public static T GetEntityByPath<T>(this IEntityDirectory<T> entityDirectory, string[] path) where T : IEntity
+        public static T GetEntityByPath<T>(this IEntityDirectory<T> entityDirectory, params string[] path) where T : IEntity
         {
             var currentDirectory = entityDirectory;
             var entityName = path.Last();
@@ -24,7 +24,7 @@ namespace SamllHax.MapleSyrup.Interfaces.Data
             return currentDirectory.Entities[entityName];
         }
 
-        public static IEntity GetByPath<T>(this IEntityDirectory<T> entityDirectory, string[] path) where T : IEntity
+        public static IEntity GetByPath<T>(this IEntityDirectory<T> entityDirectory, params string[] path) where T : IEntity
         {
             var currentDirectory = entityDirectory;
             var entityName = path.Last();

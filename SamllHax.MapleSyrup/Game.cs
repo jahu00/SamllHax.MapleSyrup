@@ -9,6 +9,7 @@ using SamllHax.MapleSyrup.Components;
 using SamllHax.MapleSyrup.Draw;
 using SamllHax.MapleSyrup.Helpers;
 using SamllHax.MapleSyrup.Interfaces.Data;
+using SamllHax.MapleSyrup.Interfaces.Interfaces.Providers;
 using SamllHax.MapleSyrup.Providers.Dumper.Data;
 using SkiaSharp;
 
@@ -95,7 +96,6 @@ namespace SamllHax.MapleSyrup
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             _fpsCounter.PushTime(args.Time);
-            //var delta = Convert.ToInt32(args.Time * 1000d);
             //timer += args.Time;
             canvas.Clear(SKColors.CornflowerBlue);
             _camera.Draw(canvas, BaseMatrix);
