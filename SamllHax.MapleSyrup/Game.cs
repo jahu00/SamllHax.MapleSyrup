@@ -70,7 +70,8 @@ namespace SamllHax.MapleSyrup
             base.OnLoad();
             _contextManager.Init();
             _commonData.Init();
-            InitMap(103000000, null);
+            //InitMap(103000000, null);
+            InitMap(103020000, null);
             //InitMap(100000000, null);
         }
 

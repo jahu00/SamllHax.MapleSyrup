@@ -50,15 +50,15 @@ namespace SamllHax.MapleSyrup.Components
                 return null;
             }
             var tileSet = _resourceManager.GetTileSet(this, mapLayer.TileSetName);
-            var drawables = mapLayer.Tiles.OrderBy(x => x.Z).Select
+            var drawables = mapLayer.Tiles.Select
             (
                 tile =>
                 {
                     var tileBitmap = _resourceManager.GetTileImage(this, mapLayer.TileSetName, tile.Path);
                     var tileData = tileSet.GetEntityByPath(tile.Path);
-                    return (IDrawable)new Sprite() { Image = tileBitmap, X = tile.X, OriginX = tileData.Origin.X, Y = tile.Y, OriginY = tileData.Origin.Y };
+                    return new TileInstance() { Image = tileBitmap, X = tile.X, OriginX = tileData.Origin.X, Y = tile.Y, OriginY = tileData.Origin.Y, Z = tileData.Z ?? 0 };
                 }
-            ).ToList();
+            ).OrderBy(x => x.Z);
             return new DrawableCollection(drawables);
         }
 
