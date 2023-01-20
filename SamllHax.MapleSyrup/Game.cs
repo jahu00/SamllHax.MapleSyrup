@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -8,6 +9,7 @@ using SamllHax.MapleSyrup.Components;
 using SamllHax.MapleSyrup.Draw;
 using SamllHax.MapleSyrup.Helpers;
 using SamllHax.MapleSyrup.Interfaces.Data;
+using SamllHax.MapleSyrup.Interfaces.Interfaces.Providers;
 using SamllHax.MapleSyrup.Providers.Dumper.Data;
 using SkiaSharp;
 
@@ -17,6 +19,7 @@ namespace SamllHax.MapleSyrup
     {
         private readonly ObjectFactory _objectFactory;
         private readonly ComponentHelper _componentHelper;
+        private readonly ILogger<Game> _logger;
         private readonly IConfiguration _configuration;
         private readonly ResourceManager _resourceManager;
         private readonly CommonData _commonData;
@@ -44,9 +47,11 @@ namespace SamllHax.MapleSyrup
             ComponentHelper componentHelper,
             CommonData commonData,
             FpsCounter fpsCounter,
-            GrContextManager contextManager
+            GrContextManager contextManager,
+            ILogger<Game> logger
         ) : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
         {
+            _logger = logger;
             _configuration = configuration.GetSection("Window");
             _objectFactory = objectFactory;
             _componentHelper = componentHelper;
@@ -65,11 +70,13 @@ namespace SamllHax.MapleSyrup
             base.OnLoad();
             _contextManager.Init();
             _commonData.Init();
-            InitMap(100000000, null);
+            InitMap(103000000, null);
+            //InitMap(100000000, null);
         }
 
         private void InitMap(int mapId, string portalName)
         {
+            _logger.LogInformation($"Going to map {mapId} at {portalName}");
             if (_mapInstance != null)
             {
                 _resourceManager.AbandonResources(_mapInstance);
@@ -89,7 +96,6 @@ namespace SamllHax.MapleSyrup
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             _fpsCounter.PushTime(args.Time);
-            //var delta = Convert.ToInt32(args.Time * 1000d);
             //timer += args.Time;
             canvas.Clear(SKColors.CornflowerBlue);
             _camera.Draw(canvas, BaseMatrix);

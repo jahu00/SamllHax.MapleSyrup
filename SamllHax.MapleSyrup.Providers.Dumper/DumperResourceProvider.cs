@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using SamllHax.MapleSyrup.Interfaces.Data;
 using SamllHax.MapleSyrup.Interfaces.Interfaces.Providers;
 using SamllHax.MapleSyrup.Interfaces.Providers;
@@ -16,9 +17,11 @@ namespace SamllHax.MapleSyrup.Providers.Dumper
     public class DumperResourceProvider : IResourceProvider
     {
         private readonly string _basePath;
+        private readonly ILogger<DumperResourceProvider> _logger;
         private readonly IConfiguration _configuration;
-        public DumperResourceProvider(IConfiguration configuration)
+        public DumperResourceProvider(IConfiguration configuration, ILogger<DumperResourceProvider> logger)
         {
+            _logger = logger;
             _configuration = configuration.GetSection("DumperResourceProvider");
             _basePath = _configuration.GetValue<string>("Path");
         }
@@ -58,8 +61,13 @@ namespace SamllHax.MapleSyrup.Providers.Dumper
             return entity;
         }
 
-        public WzNode ParseNode(XElement xml)
+        public WzNode ParseNode(XElement xml, int watchdog = 255)
         {
+            watchdog--;
+            if (watchdog < 0)
+            {
+                throw new Exception("Watchdog triggered");
+            }
             WzNode node;
             var xmlName = xml.Name.ToString();
             switch (xmlName)
@@ -87,7 +95,7 @@ namespace SamllHax.MapleSyrup.Providers.Dumper
                     node = new WzVector() { X = xml.Attribute("x").ValueAsInt(), Y = xml.Attribute("y").ValueAsInt() };
                     break;
                 case "uol":
-                    node = new WzRepeat() { Value = xml.Attribute("value").Value };
+                    node = ResolveRepeatNode(xml, watchdog);
                     break;
                 case "sound":
                     node = new WzSound();
@@ -109,9 +117,40 @@ namespace SamllHax.MapleSyrup.Providers.Dumper
                 {
                     throw new Exception($"Node {node.Name} of type {node.GetType().Name} is not a directory");
                 }
-                nodeAsDirectory.Children = childrenXml.Select(childXml => ParseNode((XElement)childXml)).ToList();
+                nodeAsDirectory.Children = childrenXml.Select(childXml => ParseNode((XElement)childXml, watchdog)).ToList();
             }
             return node;
+        }
+
+        private WzNode ResolveRepeatNode(XElement xml, int watchdog)
+        {
+            var repeatNode = new WzRepeat() { Value = xml.Attribute("value").Value };
+            var otherXml = GetXmlByPath(xml, repeatNode.Value);
+            var node = ParseNode(otherXml, watchdog);
+            var canvasNode = node as WzCanvas;
+            if (canvasNode == null)
+            {
+                throw new Exception($"Expected node to be of type WzCanvas, but got {node.GetType().Name}");
+            }
+            canvasNode.FramePath = repeatNode.Value;
+            canvasNode.Name = repeatNode.Name;
+            return node;
+        }
+
+        private XElement GetXmlByPath(XElement xml, string value)
+        {
+            var parts = value.Split('/');
+            var result = xml.Parent;
+            foreach(var part in parts)
+            {
+                if (part == "..")
+                {
+                    result = result.Parent;
+                    continue;
+                }
+                result = result.Nodes().Cast<XElement>().First(x => x.Attribute("name").Value == part);
+            }
+            return result;
         }
 
         public Stream GetTileImage(string tileSetName, string[] path)

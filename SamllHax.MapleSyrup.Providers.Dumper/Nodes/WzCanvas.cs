@@ -10,5 +10,6 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Nodes
     {
         public int Width { get; set; }
         public int Height { get; set; }
+        public string FramePath { get; set; }
     }
 }

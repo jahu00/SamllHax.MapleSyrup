@@ -18,5 +18,6 @@ namespace SamllHax.MapleSyrup.Interfaces.Data
         /// Foothold as used by tiles
         /// </summary>
         List<IFoothold> Footholds { get; }
+        string FramePath { get; }
     }
 }

@@ -14,20 +14,20 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
 
         public WzAnimation(WzDirectory directory) : base(directory)
         {
-            foreach (var pair in _directory.Children.Select((x, i) => new { Node = x, Index = i  }).OrderByDescending(x => x.Node is WzCanvas))
+            foreach (var pair in _directory.Children.Select((x, i) => new { Node = x, Index = i  }))
             {
                 var frameNode = pair.Node;
                 if (NonFrameNodeNames.Contains(frameNode.Name))
                 {
                     continue;
                 }
-                var frameRepeat = frameNode as WzRepeat;
+                /*var frameRepeat = frameNode as WzRepeat;
                 if (frameRepeat != null)
                 {
                     var repeatedFrame = Frames[frameRepeat.Value];
                     Frames.Add(frameRepeat.Name, repeatedFrame);
                     continue;
-                }
+                }*/
                 /*var intRepeat = frameNode as WzIntValue;
                 if (intRepeat != null && intRepeat.Name == "repeat")
                 {
