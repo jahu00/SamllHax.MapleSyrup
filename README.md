@@ -6,7 +6,7 @@ Ideally this client would directly use provided wz files, but I might go with a 
 Currently I just use files dumped by <a href="https://github.com/Xterminatorz/WZ-Dumper">WZ.Dumper</a>
 
 Everything is written from scratch, but I use <a href="https://github.com/Libre-Maple/LibreMaple-Client">LibreMaple</a> as an inspiration when I get stuck.
-[s]Currently this client is only able to render a map to a png file.[/s]
+
 Currently the client partially renders maps (no backgrounds) and allows traveling using non scripted portals.
 
 Client is written in .Net Core 6 and uses SkiaSharp for rendering 2D graphics (with OpenTK creating a native window and providing OponGL context). What lib (if any) to use for getting wz data is up in the air.
