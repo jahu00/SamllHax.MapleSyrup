@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace SamllHax.MapleSyrup.Draw
 {
-    public class Frame
+    public enum LineType
     {
-        public Sprite Sprite { get; set; }
-        public float Delay { get; set; }
+        Oblique,
+        Horizontal,
+        Vertical
     }
 }

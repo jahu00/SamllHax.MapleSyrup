@@ -1,11 +1,12 @@
-﻿using SamllHax.MapleSyrup.Draw;
+﻿using OpenTK.Windowing.Common;
+using SamllHax.MapleSyrup.Draw;
 using SamllHax.MapleSyrup.Helpers;
 using SamllHax.MapleSyrup.Interfaces.Data;
 using SkiaSharp;
 
 namespace SamllHax.MapleSyrup.Components
 {
-    public class MapInstance: DrawableBase, IDrawable, IUpdatable, IBoundable
+    public class MapInstance: ComponentBase, IDrawable, IUpdatable, IBoundable
     {
         private readonly ResourceManager _resourceManager;
         private readonly ComponentHelper _componentHelper;
@@ -15,6 +16,9 @@ namespace SamllHax.MapleSyrup.Components
         public DrawableCollection Portals { get; private set; }
         public PlayerInstance Character { get; private set; }
         public SKRectI BoundingBox { get; private set; }
+
+        private SKPaint FootholdPaint { get; set; } = new SKPaint() { Color = SKColors.Red };
+        public List<Foothold> Footholds { get; private set; }
 
         public MapInstance(ResourceManager resourceManager, ComponentHelper componentHelper, CommonData commonData)
         {
@@ -38,6 +42,7 @@ namespace SamllHax.MapleSyrup.Components
                 OriginX = 18,
                 OriginY = 26
             };
+
             Character = _componentHelper.CreatePlayerInstance(characterSprite, this);
             if (string.IsNullOrEmpty(portalName))
             {
@@ -59,7 +64,36 @@ namespace SamllHax.MapleSyrup.Components
                 Character.X = spawnPortal.X;
                 Character.Y = spawnPortal.Y;
             }
+
+            Footholds = Map.Footholds.Select(x => ExtractFootholds(Convert.ToInt32(x.Key), x.Value)).SelectMany(x => x).ToList();
+
             return this;
+        }
+
+        List<Foothold> ExtractFootholds(int layerId, IEntityDirectory<IMapFoothold> footholdDirectory, int watchdog = 10)
+        {
+            watchdog--;
+            if (watchdog <= 0)
+            {
+                throw new Exception("Watchdog triggered");
+            }
+            var result = new List<Foothold>();
+            result.AddRange(footholdDirectory.Directories.Select(x => ExtractFootholds(layerId, x.Value, watchdog)).SelectMany(x => x));
+            result.AddRange
+            (
+                footholdDirectory.Entities.Select(x => x.Value).Select
+                (
+                    x => new Foothold(
+                        layerId: layerId,
+                        x1: x.X1,
+                        y1: x.Y1,
+                        x2: x.X2,
+                        y2: x.Y2
+                    )
+                    { Paint = FootholdPaint }
+                )
+            );
+            return result;
         }
 
         private IEnumerable<IDrawable> BuildPortals(List<IMapPortal> mapPortals)
@@ -78,13 +112,14 @@ namespace SamllHax.MapleSyrup.Components
             Character.Draw(canvas, this.GetTransformMatrix(matrix));
             //canvas.DrawRect(new SKRectI(offsetX + BoundingBox.Left, offsetY + BoundingBox.Top, offsetX + BoundingBox.Right, offsetY + BoundingBox.Bottom), new SKPaint() { Color = SKColors.Red, Style = SKPaintStyle.Stroke });
             Portals.Draw(canvas, this.GetTransformMatrix(matrix));
+            Footholds.ForEach(foothold => foothold.Draw(canvas, matrix));
         }
 
-        public void Update(double delta)
+        public void OnUpdate(UpdateEvents events)
         {
-            Layers.Update(delta);
-            Portals.Update(delta);
-            Character.Update(delta);
+            Layers.Update(events);
+            Portals.Update(events);
+            Character.Update(events);
         }
 
         public SKRectI GetBoundingBox()

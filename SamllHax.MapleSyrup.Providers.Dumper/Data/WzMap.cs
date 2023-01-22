@@ -19,6 +19,15 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
                 Layers.Add(mapLayer);
             }
             Portals = _directory.GetSingleChild<WzDirectory>("portal").Children.Cast<WzDirectory>().Select(x => (IMapPortal)new WzMapPortal(x)).ToList();
+            var footholdsNode = _directory.GetSingleOrDefaultChild<WzDirectory>("foothold");
+            if (footholdsNode != null)
+            { 
+                foreach(WzDirectory footholdLayerNode in footholdsNode.Children)
+                {
+                    var footholdLayer = new WzMapFootholdDirectory(footholdLayerNode);
+                    Footholds.Add(footholdLayer.Name, footholdLayer);
+                }
+            }
             MapMark = _directory.GetSingleChild<WzDirectory>("info").GetSingleChild<WzStringValue>("mapMark").Value;
         }
 
@@ -26,5 +35,6 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
         public List<IMapLayer> Layers { get; } = new List<IMapLayer>();
         public List<IMapPortal> Portals { get; } = new List<IMapPortal>();
 
+        public IDictionary<string, IEntityDirectory<IMapFoothold>> Footholds { get; } = new Dictionary<string, IEntityDirectory<IMapFoothold>>();
     }
 }

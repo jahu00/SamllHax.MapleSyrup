@@ -1,4 +1,5 @@
-﻿using SamllHax.MapleSyrup.Draw;
+﻿using OpenTK.Windowing.Common;
+using SamllHax.MapleSyrup.Draw;
 using SamllHax.MapleSyrup.Helpers;
 using SamllHax.MapleSyrup.Interfaces.Data;
 using SamllHax.MapleSyrup.Interfaces.Interfaces.Providers;
@@ -89,9 +90,9 @@ namespace SamllHax.MapleSyrup.Components
             return new DrawableCollection(drawables);
         }
 
-        public override void Update(double delta)
+        public override void OnUpdate(UpdateEvents events)
         {
-            Objects.Update(delta);
+            Objects.Update(events);
         }
 
         public override SKRectI GetBoundingBox()

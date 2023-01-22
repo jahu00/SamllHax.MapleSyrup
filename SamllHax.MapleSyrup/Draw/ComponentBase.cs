@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace SamllHax.MapleSyrup.Draw
 {
-    public class Frame
+    public class ComponentBase: DrawableBase
     {
-        public Sprite Sprite { get; set; }
-        public float Delay { get; set; }
+        public virtual bool Paused { get; }
     }
 }

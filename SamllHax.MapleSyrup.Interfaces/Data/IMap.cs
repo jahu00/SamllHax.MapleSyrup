@@ -10,5 +10,6 @@ namespace SamllHax.MapleSyrup.Interfaces.Data
         string MapMark { get; }
         List<IMapLayer> Layers { get; }
         List<IMapPortal> Portals { get; }
+        IDictionary<string, IEntityDirectory<IMapFoothold>> Footholds { get; }
     }
 }

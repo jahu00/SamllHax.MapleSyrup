@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using OpenTK.Windowing.Common;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace SamllHax.MapleSyrup.Draw
 {
-    public class AnimatedSprite : DrawableBase, IDrawable, IUpdatable, IBoundable
+    public class AnimatedSprite : ComponentBase, IDrawable, IUpdatable, IBoundable
     {
         public int FrameId { get; private set; }
-        public double Timer { get; private set; }
+        public float Timer { get; private set; }
         public List<Frame> Frames { get; set; } = new List<Frame>();
         public AnimationType AnimationType { get; set; } = AnimationType.NormalLoop;
         public bool Complete { get; private set; }
@@ -34,9 +35,9 @@ namespace SamllHax.MapleSyrup.Draw
             return this.TransformBoundingBox(currentFrame.Sprite.GetBoundingBox());
         }
 
-        public void Update(double delta)
+        public void OnUpdate(UpdateEvents events)
         {
-            if (Complete || delta <= 0)
+            if (Complete || events.Delta <= 0)
             {
                 return;
             }
@@ -44,7 +45,7 @@ namespace SamllHax.MapleSyrup.Draw
                 return;
             }
             var currentFrame = Frames[FrameId];
-            Timer += delta;
+            Timer += events.Delta;
             if (currentFrame.Delay > Timer)
             {
                 return;

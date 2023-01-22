@@ -106,12 +106,8 @@ namespace SamllHax.MapleSyrup
 
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
-            var delta = args.Time;// * 1000d;
-            //timer += args.Time;
-            _mapInstance.Update(delta);
-
-            var speed = 500;
-            var move = (float)(speed * args.Time);
+            var events = new UpdateEvents((float)args.Time, KeyboardState);
+            _mapInstance.Update(events);
 
             // Check if the Escape button is currently being pressed.
             if (KeyboardState.IsKeyDown(Keys.Escape))
@@ -119,31 +115,13 @@ namespace SamllHax.MapleSyrup
                 // If it is, close the window.
                 Close();
             }
-            if (KeyboardState.IsKeyDown(Keys.Down))
-            {
-                //_mapInstance.Character.Y += move;
-            }
-            if (KeyboardState.IsKeyPressed(Keys.Up))
-            {
-                //_mapInstance.Character.Y -= move;
-                _mapInstance.Character.SpeedY = -1 * _commonData.Physics.JumpSpeed;
-            }
-            if (KeyboardState.IsKeyDown(Keys.Left))
-            {
-                _mapInstance.Character.X -= move;
-                _mapInstance.Character.ScaleX = 1;
-            }
-            if (KeyboardState.IsKeyDown(Keys.Right))
-            {
-                _mapInstance.Character.X += move;
-                _mapInstance.Character.ScaleX = -1;
-            }
+
             if (KeyboardState.IsKeyPressed(Keys.Space))
             {
                 var portalInstance = _mapInstance.Portals.Children.Cast<PortalInstance>().FirstOrDefault(x => x.GetBoundingBox().Contains((int)_mapInstance.Character.X, (int)_mapInstance.Character.Y));
                 if (portalInstance != null && portalInstance.MapPortal.TargetMapId < 999999999)
                 {
-                     if (portalInstance.MapPortal.TargetMapId.ToString() == _mapInstance.Map.Name)
+                    if (portalInstance.MapPortal.TargetMapId.ToString() == _mapInstance.Map.Name)
                     {
                         _mapInstance.Character.X = portalInstance.X;
                         _mapInstance.Character.Y = portalInstance.Y;
@@ -154,11 +132,16 @@ namespace SamllHax.MapleSyrup
                     }
                 }
             }
+
             base.OnUpdateFrame(args);
         }
 
         protected override void OnResize(ResizeEventArgs args)
         {
+            if (args.Width == 0 || args.Height == 0)
+            {
+                return;
+            }
             renderTarget?.Dispose();
             renderTarget = new GRBackendRenderTarget(args.Width, args.Height, 0, 8, new GRGlFramebufferInfo(0, (uint)SizedInternalFormat.Rgba8));
             surface?.Dispose();

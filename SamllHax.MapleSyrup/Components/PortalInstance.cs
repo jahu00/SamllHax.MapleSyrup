@@ -1,4 +1,5 @@
-﻿using SamllHax.MapleSyrup.Draw;
+﻿using OpenTK.Windowing.Common;
+using SamllHax.MapleSyrup.Draw;
 using SamllHax.MapleSyrup.Interfaces.Data;
 using SkiaSharp;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SamllHax.MapleSyrup.Components
 {
-    public class PortalInstance: DrawableBase, IDrawable, IBoundable, IUpdatable
+    public class PortalInstance: ComponentBase, IDrawable, IBoundable, IUpdatable
     {
         public IDrawable Drawable { get; private set; }
         public IMapPortal MapPortal { get; }
@@ -19,10 +20,10 @@ namespace SamllHax.MapleSyrup.Components
             Drawable = drawable;
         }
 
-        public void Update(double delta)
+        public void OnUpdate(UpdateEvents events)
         {
             var updatable = Drawable as IUpdatable;
-            updatable?.Update(delta);
+            updatable?.Update(events);
         }
 
         public SKRectI GetBoundingBox()

@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL;
+using OpenTK.Windowing.Common;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SamllHax.MapleSyrup.Draw
 {
-    public class DrawableCollection: DrawableBase, IDrawable, IUpdatable, IBoundable
+    public class DrawableCollection: ComponentBase, IDrawable, IUpdatable, IBoundable
     {
         public List<IDrawable> Children { get; } = new List<IDrawable>();
 
@@ -64,7 +65,7 @@ namespace SamllHax.MapleSyrup.Draw
             return this.TransformBoundingBox(new SKRectI() { Top = top, Left = left, Bottom = bottom, Right = right });
         }
 
-        public virtual void Update(double delta)
+        public virtual void OnUpdate(UpdateEvents events)
         {
             foreach (var sprite in Children)
             {
@@ -73,7 +74,7 @@ namespace SamllHax.MapleSyrup.Draw
                     continue;
                 }
                 var updatable = (IUpdatable)sprite;
-                updatable.Update(delta);
+                updatable.Update(events);
             }
         }
     }

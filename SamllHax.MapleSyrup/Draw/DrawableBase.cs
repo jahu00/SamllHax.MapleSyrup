@@ -12,6 +12,7 @@ namespace SamllHax.MapleSyrup.Draw
         public virtual int OriginY { get; set; } = 0;
         public virtual float X { get; set; } = 0;
         public virtual float Y { get; set; } = 0;
+        public virtual int Z { get; set; } = 0;
         public virtual float ScaleX { get; set; } = 1;
         public virtual float ScaleY { get; set; } = 1;
     }
