@@ -79,21 +79,46 @@ namespace SamllHax.MapleSyrup.Components
             }
             var result = new List<Foothold>();
             result.AddRange(footholdDirectory.Directories.Select(x => ExtractFootholds(layerId, x.Value, watchdog)).SelectMany(x => x));
-            result.AddRange
+            List<Foothold> footholds = GetFoodholds(layerId, footholdDirectory.Entities);
+            result.AddRange(footholds);
+            return result;
+        }
+
+        private List<Foothold> GetFoodholds(int layerId, IDictionary<string,IMapFoothold> entities)
+        {
+            var footholdIndex = new Dictionary<int, Foothold>();
+            var footholds = entities.Select(x => x.Value).Select
             (
-                footholdDirectory.Entities.Select(x => x.Value).Select
-                (
-                    x => new Foothold(
-                        layerId: layerId,
+                x =>
+                {
+                    var foothold = new Foothold(
                         x1: x.X1,
                         y1: x.Y1,
                         x2: x.X2,
                         y2: x.Y2
                     )
-                    { Paint = FootholdPaint }
-                )
-            );
-            return result;
+                    {
+                        LayerId = layerId,
+                        Data = x,
+                        Paint = FootholdPaint
+                    };
+                    footholdIndex.Add(Convert.ToInt32(x.Name), foothold);
+                    return foothold;
+                }
+            ).ToList();
+
+            footholds.ForEach(x =>
+            {
+                if (x.Data.Next != 0 && footholdIndex.TryGetValue(x.Data.Next, out var nextFoothold))
+                {
+                    x.Next = nextFoothold;
+                }
+                if (x.Data.Prev != 0 && footholdIndex.TryGetValue(x.Data.Prev, out var previousFoothold))
+                {
+                    x.Previous = previousFoothold;
+                }
+            });
+            return footholds;
         }
 
         private IEnumerable<IDrawable> BuildPortals(List<IMapPortal> mapPortals)

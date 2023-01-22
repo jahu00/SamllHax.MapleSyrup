@@ -23,6 +23,9 @@ namespace SamllHax.MapleSyrup.Components
         public IDrawable Sprite { get; set; }
         public MapInstance MapInstance { get; set; }
 
+        public bool IsOnRail => Foothold != null;
+        public Foothold Foothold { get; set; }
+
         public PlayerInstance(CommonData commonData)//, Game game)
         {
             _commonData = commonData;
@@ -39,11 +42,13 @@ namespace SamllHax.MapleSyrup.Components
             if (events.KeyboardState.IsKeyPressed(Keys.Down))
             {
                 Y += 1;
+                Foothold = null;
             }
             if (events.KeyboardState.IsKeyPressed(Keys.Up))
             {
                 //_mapInstance.Character.Y -= move;
                 SpeedY -= _commonData.Physics.JumpSpeed;
+                Foothold = null;
             }
             var isWalking = false;
             if (events.KeyboardState.IsKeyDown(Keys.Left))
@@ -86,15 +91,59 @@ namespace SamllHax.MapleSyrup.Components
                     SpeedX -= Math.Sign(SpeedX) * drag;
                 }
             }
-
-            if (SpeedY < _commonData.Physics.FallSpeed)
+            if (!IsOnRail)
             {
-                SpeedY += (float)(events.Delta * _commonData.Physics.GravityAcc);
+                if (SpeedY < _commonData.Physics.FallSpeed)
+                {
+                    SpeedY += (float)(events.Delta * _commonData.Physics.GravityAcc);
+                }
             }
 
             var mapBoundingBox = MapInstance.GetBoundingBox();
-            var newX = X + events.Delta * SpeedX;
-            var newY = Y + events.Delta * SpeedY;
+            var newX = X;
+            var newY = Y;
+            if (IsOnRail)
+            {
+                newX += events.Delta * SpeedX;
+                if (newX <= Foothold.X1)
+                {
+                    if (Foothold.Previous == null)
+                    {
+                        Foothold = null;
+                    } else if (Foothold.Previous?.Type != LineType.Vertical)
+                    {
+                        Foothold = Foothold.Previous;
+                        newX = Foothold.X2;
+                    } else
+                    {
+                        newX = Foothold.Previous.X1;
+                    }
+                } else if (newX >= Foothold.X2)
+                {
+                    if (Foothold.Next == null)
+                    {
+                        Foothold = null;
+                    }
+                    else if (Foothold.Next?.Type != LineType.Vertical)
+                    {
+                        Foothold = Foothold.Next;
+                        newX = Foothold.X1;
+                    }
+                    else
+                    {
+                        newX = Foothold.Next.X1;
+                    }
+                }
+                if (IsOnRail)
+                {
+                    newY = Foothold.A * newX + Foothold.B;
+                }
+            }
+            else
+            {
+                newX += events.Delta * SpeedX;
+                newY += events.Delta * SpeedY;
+            }
 
             var movementLine = new Line(X, Y, (float)newX, (float)newY);
 
@@ -119,12 +168,13 @@ namespace SamllHax.MapleSyrup.Components
                     SpeedX = 0;
                     continue;
                 }
-                if (SpeedY <= 0)
+                if (SpeedY <= 0 || Foothold != null)
                 {
                     continue;
                 }
-                newY = (int)intersectionPoint.Value.Y - 1;
+                newY = (int)intersectionPoint.Value.Y;
                 SpeedY = 0;
+                Foothold = foothold;
             }
 
             if (newY > mapBoundingBox.Bottom)

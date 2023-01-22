@@ -71,8 +71,9 @@ namespace SamllHax.MapleSyrup
             _contextManager.Init();
             _commonData.Init();
             //InitMap(103000000, null);
-            InitMap(103020000, null);
+            //InitMap(103020000, null);
             //InitMap(100000000, null);
+            InitMap(101010103, null);
         }
 
         private void InitMap(int mapId, string portalName)
