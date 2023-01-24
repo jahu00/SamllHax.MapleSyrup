@@ -28,7 +28,6 @@ namespace SamllHax.MapleSyrup.Draw
             {
                 drawable.Draw(canvas, this.GetTransformMatrix(matrix));
             }
-
         }
 
         public virtual SKRectI GetBoundingBox()

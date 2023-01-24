@@ -20,6 +20,10 @@ namespace SamllHax.MapleSyrup.Components
         private SKPaint FootholdPaint { get; set; } = new SKPaint() { Color = SKColors.Red };
         public List<Foothold> Footholds { get; private set; }
 
+        public int MaxY = int.MinValue;
+        public int MinX = int.MaxValue;
+        public int MaxX = int.MinValue;
+
         public MapInstance(ResourceManager resourceManager, ComponentHelper componentHelper, CommonData commonData)
         {
             _resourceManager = resourceManager;
@@ -66,8 +70,52 @@ namespace SamllHax.MapleSyrup.Components
             }
 
             Footholds = Map.Footholds.Select(x => ExtractFootholds(Convert.ToInt32(x.Key), x.Value)).SelectMany(x => x).ToList();
-
+            LinkFootholds(Footholds);
+            MaxY = GetMaxY();
+            MinX = GetMinX();
+            MaxX = GetMaxX();
             return this;
+        }
+
+        private int GetMinX()
+        {
+            return (int)(Footholds.Where(x => !x.IsVertical).Min(x => (float?)x.BoudingBox.Left) ?? BoundingBox.Left);
+        }
+
+        private int GetMaxX()
+        {
+            return (int)(Footholds.Where(x => !x.IsVertical).Max(x => (float?)x.BoudingBox.Right) ?? BoundingBox.Right);
+        }
+
+        private int GetMaxY()
+        {
+            return (int)(Footholds.Where(x => !x.IsVertical).Max(x => (float?)x.BoudingBox.Bottom) ?? BoundingBox.Bottom);
+        }
+
+        private void LinkFootholds(List<Foothold> footholds)
+        {
+            var footholdIndex = footholds.ToDictionary(x => Convert.ToInt32(x.Data.Name), x => x);
+            footholds.ForEach(x =>
+            {
+                if (x.Data.Next != 0 && footholdIndex.TryGetValue(x.Data.Next, out var nextFoothold))
+                {
+                    x.Next = nextFoothold;
+                }
+                if (x.Data.Previous != 0 && footholdIndex.TryGetValue(x.Data.Previous, out var previousFoothold))
+                {
+                    x.Previous = previousFoothold;
+                }
+            });
+        }
+
+        public MatchingFoothold[] GetFootholdsForX(float x)
+        {
+            var footholds = Footholds.Where(foothold => !foothold.IsVertical && foothold.ContainsHorizontally(x)).Select(foothold => new MatchingFoothold() { Foothold = foothold, Y = foothold.GetY(x)}).OrderBy(pair => pair.Y).ToArray();
+            if (footholds.Count() > 0)
+            {
+                footholds.Last().IsLast = true;
+            }
+            return footholds;
         }
 
         List<Foothold> ExtractFootholds(int layerId, IEntityDirectory<IMapFoothold> footholdDirectory, int watchdog = 10)
@@ -86,7 +134,7 @@ namespace SamllHax.MapleSyrup.Components
 
         private List<Foothold> GetFoodholds(int layerId, IDictionary<string,IMapFoothold> entities)
         {
-            var footholdIndex = new Dictionary<int, Foothold>();
+            //var footholdIndex = new Dictionary<int, Foothold>();
             var footholds = entities.Select(x => x.Value).Select
             (
                 x =>
@@ -102,22 +150,22 @@ namespace SamllHax.MapleSyrup.Components
                         Data = x,
                         Paint = FootholdPaint
                     };
-                    footholdIndex.Add(Convert.ToInt32(x.Name), foothold);
+                    //footholdIndex.Add(Convert.ToInt32(x.Name), foothold);
                     return foothold;
                 }
             ).ToList();
 
-            footholds.ForEach(x =>
+            /*footholds.ForEach(x =>
             {
                 if (x.Data.Next != 0 && footholdIndex.TryGetValue(x.Data.Next, out var nextFoothold))
                 {
                     x.Next = nextFoothold;
                 }
-                if (x.Data.Prev != 0 && footholdIndex.TryGetValue(x.Data.Prev, out var previousFoothold))
+                if (x.Data.Previous != 0 && footholdIndex.TryGetValue(x.Data.Previous, out var previousFoothold))
                 {
                     x.Previous = previousFoothold;
                 }
-            });
+            });*/
             return footholds;
         }
 

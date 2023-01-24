@@ -2,6 +2,7 @@
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -106,7 +107,7 @@ namespace SamllHax.MapleSyrup.Draw
                 }
             }
             var x = (B - otherLine.B) / (otherLine.A - A);
-            var y = A * x + B;
+            var y = GetY(x);
             var result = new SKPoint(x, y);
             /*if (result.X == float.NaN || result.Y == float.NaN)
             {
@@ -135,7 +136,7 @@ namespace SamllHax.MapleSyrup.Draw
 
         protected bool Contains(SKPoint point)
         {
-            var outsideHorizontally = (point.X < BoudingBox.Left || point.X > BoudingBox.Right);
+            var outsideHorizontally = OutsideHorizontally(point.X);
             if (IsHorizontal && outsideHorizontally)
             {
                 return false;
@@ -147,6 +148,16 @@ namespace SamllHax.MapleSyrup.Draw
             }
 
             return !outsideVertically && !outsideHorizontally;
+        }
+
+        public bool OutsideHorizontally(float x)
+        {
+            return (x < BoudingBox.Left || x > BoudingBox.Right);
+        }
+
+        public bool ContainsHorizontally(float x)
+        {
+            return !OutsideHorizontally(x);
         }
 
         public SKRectI GetBoundingBox()
@@ -162,6 +173,11 @@ namespace SamllHax.MapleSyrup.Draw
             }
             canvas.SetMatrix(matrix);
             canvas.DrawLine(X1, Y1, X2, Y2, Paint);
+        }
+
+        public float GetY(float x)
+        {
+            return A * x + B;
         }
     }
 }

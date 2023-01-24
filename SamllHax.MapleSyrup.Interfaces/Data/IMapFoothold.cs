@@ -10,7 +10,8 @@ namespace SamllHax.MapleSyrup.Interfaces.Data
         int Y1 { get; }
         int X2 { get; }
         int Y2 { get; }
-        int Prev { get; }
+        int Previous { get; }
         int Next { get; }
+        bool? ForbidFallDown { get; }
     }
 }

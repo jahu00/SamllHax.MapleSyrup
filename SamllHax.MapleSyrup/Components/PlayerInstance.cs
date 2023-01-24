@@ -12,6 +12,8 @@ namespace SamllHax.MapleSyrup.Components
 {
     public class PlayerInstance : ComponentBase, IDrawable, IUpdatable
     {
+        const int footholdWidth = 2;
+
         private CommonData _commonData;
         //private readonly Game _game;
 
@@ -23,8 +25,20 @@ namespace SamllHax.MapleSyrup.Components
         public IDrawable Sprite { get; set; }
         public MapInstance MapInstance { get; set; }
 
-        public bool IsOnRail => Foothold != null;
+        public bool IsOnRail { get; set; } = false;
+        public bool IsAirborn { get
+            {
+                return !IsOnRail;
+            }
+            set
+            {
+                IsOnRail = !value;
+            }
+        }
         public Foothold Foothold { get; set; }
+
+        public Line LastMoveVector { get; set; }
+        public SKPaint MoveVectorPaint { get; set; } = new SKPaint() { Color = SKColors.Blue };
 
         public PlayerInstance(CommonData commonData)//, Game game)
         {
@@ -35,21 +49,32 @@ namespace SamllHax.MapleSyrup.Components
         public void Draw(SKCanvas canvas, SKMatrix matrix)
         {
             Sprite.Draw(canvas, this.GetTransformMatrix(matrix));
+            LastMoveVector?.Draw(canvas, matrix);
+        }
+
+        public MatchingFoothold TryGettingMatchingFoothold(float x, float y)
+        {
+            var matchingFootholds = MapInstance.GetFootholdsForX(x);
+            if (matchingFootholds.Count() == 0)
+            {
+                return null;
+            }
+            var matchingFoothold = matchingFootholds.Where(pair => pair.Y + footholdWidth > y).OrderBy(pair => pair.Y).FirstOrDefault();
+            if (matchingFoothold == null)
+            {
+                matchingFoothold = matchingFootholds.Last();
+            }
+            return matchingFoothold;
         }
 
         public void OnUpdate(UpdateEvents events)
         {
-            if (events.KeyboardState.IsKeyPressed(Keys.Down))
+            var matchingFoothold = TryGettingMatchingFoothold(X, Y);
+            if (IsAirborn && matchingFoothold != null && Foothold != matchingFoothold.Foothold)
             {
-                Y += 1;
-                Foothold = null;
+                Foothold = matchingFoothold.Foothold;
             }
-            if (events.KeyboardState.IsKeyPressed(Keys.Up))
-            {
-                //_mapInstance.Character.Y -= move;
-                SpeedY -= _commonData.Physics.JumpSpeed;
-                Foothold = null;
-            }
+
             var isWalking = false;
             if (events.KeyboardState.IsKeyDown(Keys.Left))
             {
@@ -65,6 +90,7 @@ namespace SamllHax.MapleSyrup.Components
                     }
                 }
             }
+
             if (events.KeyboardState.IsKeyDown(Keys.Right))
             {
                 ScaleX = -1;
@@ -86,115 +112,129 @@ namespace SamllHax.MapleSyrup.Components
                 if (drag > Math.Abs(SpeedX))
                 {
                     SpeedX = 0;
-                } else
+                }
+                else
                 {
                     SpeedX -= Math.Sign(SpeedX) * drag;
                 }
             }
-            if (!IsOnRail)
+
+            if (IsOnRail)
+            {
+                if (events.KeyboardState.IsKeyPressed(Keys.Down))
+                {
+                    if (matchingFoothold?.IsLast == false && Foothold.Data.ForbidFallDown != true)
+                    {
+                        Y += footholdWidth + 1;
+                        IsAirborn = true;
+                        return;
+                    }
+                }
+                if (events.KeyboardState.IsKeyPressed(Keys.Up))
+                {
+                    //_mapInstance.Character.Y -= move;
+                    SpeedY -= _commonData.Physics.JumpSpeed;
+                    IsAirborn = true;
+                }
+            } else
             {
                 if (SpeedY < _commonData.Physics.FallSpeed)
                 {
                     SpeedY += (float)(events.Delta * _commonData.Physics.GravityAcc);
+                    if (SpeedY > _commonData.Physics.GravityAcc)
+                    {
+                        SpeedY = _commonData.Physics.GravityAcc;
+                    }
                 }
             }
 
-            var mapBoundingBox = MapInstance.GetBoundingBox();
-            var newX = X;
-            var newY = Y;
+            
+            var newX = X + events.Delta * SpeedX;
+            var newY = Y + events.Delta * SpeedY;
             if (IsOnRail)
             {
-                newX += events.Delta * SpeedX;
-                if (newX <= Foothold.X1)
+                if (newX < Foothold.X1)
                 {
                     if (Foothold.Previous == null)
                     {
-                        Foothold = null;
-                    } else if (Foothold.Previous?.Type != LineType.Vertical)
+                        IsAirborn = true;
+                    } else if (Foothold.Previous?.Type != LineType.Vertical) //Continuation
                     {
                         Foothold = Foothold.Previous;
                         newX = Foothold.X2;
-                    } else
+                        newY = Foothold.Y2;
+                    } else if (Foothold.Previous?.Y1 < Foothold.Y1) // Wall
                     {
-                        newX = Foothold.Previous.X1;
+                        newX = Foothold.X1;
+                        newY = Foothold.Y1;
+                        SpeedX = 0;
+                    } else // Cliff
+                    {
+                        IsAirborn = true;
                     }
-                } else if (newX >= Foothold.X2)
+                } else if (newX > Foothold.X2)
                 {
                     if (Foothold.Next == null)
                     {
-                        Foothold = null;
+                        IsAirborn = true;
                     }
-                    else if (Foothold.Next?.Type != LineType.Vertical)
+                    else if (Foothold.Next?.Type != LineType.Vertical) //Continuation
                     {
                         Foothold = Foothold.Next;
                         newX = Foothold.X1;
+                        newY = Foothold.Y1;
                     }
-                    else
+                    else if (Foothold.Next?.Y2 < Foothold.Y2) // Wall
                     {
-                        newX = Foothold.Next.X1;
+                        newX = Foothold.X2;
+                        newY = Foothold.Y2;
+                        SpeedX = 0;
                     }
-                }
-                if (IsOnRail)
+                    else // Cliff
+                    {
+                        IsAirborn = true;
+                    }
+                } else
                 {
-                    newY = Foothold.A * newX + Foothold.B;
+                    newY = (int)Foothold.GetY(newX);
                 }
             }
             else
             {
-                newX += events.Delta * SpeedX;
-                newY += events.Delta * SpeedY;
-            }
-
-            var movementLine = new Line(X, Y, (float)newX, (float)newY);
-
-            //var intersectingFootholds = MapInstance.Footholds.Select(x => new { Foothold = x, IntersectPoint = x.LineSegmentIntersectPoint(movementLine) }).Where(x => x.IntersectPoint != null).OrderBy(x => x.IntersectPoint.Value.Y).ToList();
-
-            foreach(var foothold in MapInstance.Footholds)
-            /*foreach(var intersectingFoothold in intersectingFootholds)*/
-            {
-                var intersectionPoint = foothold.LineSegmentIntersectPoint(movementLine);
-                if (intersectionPoint == null)
+                if (Foothold != null && SpeedY > 0)
                 {
-                    continue;
-                }
-                intersectionPoint = foothold.LineSegmentIntersectPoint(movementLine);
-                if (foothold.IsVertical)
-                {
-                    if (SpeedX == 0)
+                    var maxY = Foothold.GetY(newX);
+                    if (newY > maxY)
                     {
-                        continue;
+                        newY = maxY;
+                        IsOnRail = true;
+                        SpeedY = 0;
                     }
-                    newX = (int)intersectionPoint.Value.X - 1 * Math.Sign(SpeedX);
-                    SpeedX = 0;
-                    continue;
                 }
-                if (SpeedY <= 0 || Foothold != null)
-                {
-                    continue;
-                }
-                newY = (int)intersectionPoint.Value.Y;
-                SpeedY = 0;
-                Foothold = foothold;
             }
 
-            if (newY > mapBoundingBox.Bottom)
+            if (newY > MapInstance.MaxY)
             {
-                newY = mapBoundingBox.Bottom;
+                newY = MapInstance.MaxY;
+                SpeedY = 0;
+            } else if (newY > MapInstance.MaxY)
+            {
+                newY = MapInstance.MaxY;
                 SpeedY = 0;
             }
-            else if (newY < mapBoundingBox.Top)
+            /*else if (newY < mapBoundingBox.Top)
             {
                 newY = mapBoundingBox.Top;
                 SpeedY = 0;
-            }
+            }*/
 
-            if (newX < mapBoundingBox.Left)
+            if (newX < MapInstance.MinX)
             {
-                newX = mapBoundingBox.Left;
+                newX = MapInstance.MinX;
             }
-            else if (newX > mapBoundingBox.Right)
+            else if (newX > MapInstance.MaxX)
             {
-                newX = mapBoundingBox.Right;
+                newX = MapInstance.MaxX;
             }
 
             X = (float)newX;

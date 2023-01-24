@@ -49,7 +49,11 @@ namespace SamllHax.MapleSyrup
             FpsCounter fpsCounter,
             GrContextManager contextManager,
             ILogger<Game> logger
-        ) : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
+        ) : base
+        (
+            GameWindowSettings.Default,
+            //new GameWindowSettings() { RenderFrequency = 60, UpdateFrequency = 15 },
+            new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
         {
             _logger = logger;
             _configuration = configuration.GetSection("Window");

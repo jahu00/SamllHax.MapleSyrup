@@ -10,7 +10,7 @@ namespace SamllHax.MapleSyrup.Components
 {
     public class TileInstance: Sprite
     {
-        public int Z { get; set; }
+        //public int Z { get; set; }
 
     }
 }

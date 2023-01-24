@@ -32,10 +32,13 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
                         Y2 = intNode.Value;
                         break;
                     case "prev":
-                        Prev = intNode.Value;
+                        Previous = intNode.Value;
                         break;
                     case "next":
                         Next = intNode.Value;
+                        break;
+                    case "forbidFallDown":
+                        ForbidFallDown = intNode.Value == 1;
                         break;
                     default:
                         throw new Exception($"Unsupported {node.Name} of type {node.GetType().Name}");
@@ -51,8 +54,9 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
 
         public int Y2 { get; }
 
-        public int Prev { get; }
+        public int Previous { get; }
 
         public int Next { get; }
+        public bool? ForbidFallDown { get; }
     }
 }
