@@ -181,8 +181,16 @@ namespace SamllHax.MapleSyrup.Components
 
         public void Draw(SKCanvas canvas, SKMatrix matrix)
         {
-            Layers.Draw(canvas, this.GetTransformMatrix(matrix));
-            Character.Draw(canvas, this.GetTransformMatrix(matrix));
+            for (var layerId = 0; layerId < Constants.LayerCount; layerId++)
+            {
+                var layer = Layers.Children[layerId];
+                layer.Draw(canvas, this.GetTransformMatrix(matrix));
+                if (Character.Z == layerId)
+                {
+                    Character.Draw(canvas, this.GetTransformMatrix(matrix));
+                }
+            }
+            //Layers.Draw(canvas, this.GetTransformMatrix(matrix));
             //canvas.DrawRect(new SKRectI(offsetX + BoundingBox.Left, offsetY + BoundingBox.Top, offsetX + BoundingBox.Right, offsetY + BoundingBox.Bottom), new SKPaint() { Color = SKColors.Red, Style = SKPaintStyle.Stroke });
             Portals.Draw(canvas, this.GetTransformMatrix(matrix));
             Footholds.ForEach(foothold => foothold.Draw(canvas, matrix));

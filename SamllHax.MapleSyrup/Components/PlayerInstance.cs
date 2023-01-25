@@ -60,10 +60,10 @@ namespace SamllHax.MapleSyrup.Components
                 return null;
             }
             var matchingFoothold = matchingFootholds.Where(pair => pair.Y + footholdWidth > y).OrderBy(pair => pair.Y).FirstOrDefault();
-            if (matchingFoothold == null)
+            /*if (matchingFoothold == null)
             {
                 matchingFoothold = matchingFootholds.Last();
-            }
+            }*/
             return matchingFoothold;
         }
 
@@ -209,6 +209,7 @@ namespace SamllHax.MapleSyrup.Components
                         newY = maxY;
                         IsOnRail = true;
                         SpeedY = 0;
+                        Z = Foothold.LayerId;
                     }
                 }
             }
