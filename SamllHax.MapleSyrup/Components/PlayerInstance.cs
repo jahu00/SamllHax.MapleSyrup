@@ -12,7 +12,7 @@ namespace SamllHax.MapleSyrup.Components
 {
     public class PlayerInstance : ComponentBase, IDrawable, IUpdatable
     {
-        const int footholdWidth = 2;
+        const int footholdWidth = 5;
 
         private CommonData _commonData;
         //private readonly Game _game;
@@ -170,6 +170,7 @@ namespace SamllHax.MapleSyrup.Components
                         SpeedX = 0;
                     } else // Cliff
                     {
+                        newX = Foothold.Previous.X1 - 1;
                         IsAirborn = true;
                     }
                 } else if (newX > Foothold.X2)
@@ -192,6 +193,7 @@ namespace SamllHax.MapleSyrup.Components
                     }
                     else // Cliff
                     {
+                        newX = Foothold.Next.X1 + 1;
                         IsAirborn = true;
                     }
                 } else
@@ -211,6 +213,10 @@ namespace SamllHax.MapleSyrup.Components
                         SpeedY = 0;
                         Z = Foothold.LayerId;
                     }
+                }
+                if (WillHitWall(X, newX, Y, out var wall))
+                {
+                    newX = wall.X1 - Math.Sign(SpeedX);
                 }
             }
 
@@ -240,6 +246,14 @@ namespace SamllHax.MapleSyrup.Components
 
             X = (float)newX;
             Y = (float)newY;
+        }
+
+        private bool WillHitWall(float x, float newX, float y, out Foothold wall)
+        {
+            var minX = Math.Floor(Math.Min(x, newX));
+            var maxX = Math.Ceiling(Math.Max(x, newX));
+            wall = MapInstance.Footholds.Where(foothold => foothold.IsVertical && foothold.ContainsVertically(y) && minX <= foothold.X1 && foothold.X1 <= maxX).FirstOrDefault();
+            return wall != null;
         }
     }
 }

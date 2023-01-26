@@ -141,7 +141,7 @@ namespace SamllHax.MapleSyrup.Draw
             {
                 return false;
             }
-            var outsideVertically = (point.Y < BoudingBox.Top || point.Y > BoudingBox.Bottom);
+            var outsideVertically = OutsideVertically(point.Y);
             if (IsVertical && outsideVertically)
             {
                 return false;
@@ -158,6 +158,16 @@ namespace SamllHax.MapleSyrup.Draw
         public bool ContainsHorizontally(float x)
         {
             return !OutsideHorizontally(x);
+        }
+
+        public bool OutsideVertically(float y)
+        {
+            return (y < BoudingBox.Top || y > BoudingBox.Bottom);
+        }
+
+        public bool ContainsVertically(float y)
+        {
+            return !OutsideVertically(y);
         }
 
         public SKRectI GetBoundingBox()
