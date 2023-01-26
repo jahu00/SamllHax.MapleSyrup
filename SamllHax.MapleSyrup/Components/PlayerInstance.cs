@@ -37,19 +37,14 @@ namespace SamllHax.MapleSyrup.Components
         }
         public Foothold Foothold { get; set; }
 
-        public Line LastMoveVector { get; set; }
-        public SKPaint MoveVectorPaint { get; set; } = new SKPaint() { Color = SKColors.Blue };
-
-        public PlayerInstance(CommonData commonData)//, Game game)
+        public PlayerInstance(CommonData commonData)
         {
             _commonData = commonData;
-            //_game = game;
         }
 
         public void Draw(SKCanvas canvas, SKMatrix matrix)
         {
             Sprite.Draw(canvas, this.GetTransformMatrix(matrix));
-            LastMoveVector?.Draw(canvas, matrix);
         }
 
         public MatchingFoothold TryGettingMatchingFoothold(float x, float y)
