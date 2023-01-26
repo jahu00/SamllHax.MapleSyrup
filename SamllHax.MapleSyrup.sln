@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SamllHax.MapleSyrup.Interfa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SamllHax.MapleSyrup.Providers.Dumper", "SamllHax.MapleSyrup.Providers.Dumper\SamllHax.MapleSyrup.Providers.Dumper.csproj", "{6C690085-97C9-430E-920C-DA5197020661}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkiaKitchensink", "SkiaKitchensink\SkiaKitchensink.csproj", "{D8D29FAA-35C0-4644-9D91-2DB97A942B1E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkiaKitchensink", "SkiaKitchensink\SkiaKitchensink.csproj", "{D8D29FAA-35C0-4644-9D91-2DB97A942B1E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamllHax.PlatformerLogic", "SamllHax.PlatformerLogic\SamllHax.PlatformerLogic.csproj", "{DED60951-24BA-437E-B09A-54BB9D5A2C95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{D8D29FAA-35C0-4644-9D91-2DB97A942B1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8D29FAA-35C0-4644-9D91-2DB97A942B1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8D29FAA-35C0-4644-9D91-2DB97A942B1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DED60951-24BA-437E-B09A-54BB9D5A2C95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DED60951-24BA-437E-B09A-54BB9D5A2C95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DED60951-24BA-437E-B09A-54BB9D5A2C95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DED60951-24BA-437E-B09A-54BB9D5A2C95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

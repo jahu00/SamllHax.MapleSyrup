@@ -1,13 +1,9 @@
 ﻿using SamllHax.MapleSyrup.Interfaces.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SamllHax.PlatformerLogic;
 
 namespace SamllHax.MapleSyrup.Draw
 {
-    public class Foothold : Line
+    public class Foothold : LineSegment
     {
         public IMapFoothold Data { get; set; }
         public int LayerId { get; set; }

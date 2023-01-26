@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SamllHax.MapleSyrup.Interfaces\SamllHax.MapleSyrup.Interfaces.csproj" />
     <ProjectReference Include="..\SamllHax.MapleSyrup.Providers.Dumper\SamllHax.MapleSyrup.Providers.Dumper.csproj" />
+    <ProjectReference Include="..\SamllHax.PlatformerLogic\SamllHax.PlatformerLogic.csproj" />
   </ItemGroup>
 
   <ItemGroup>

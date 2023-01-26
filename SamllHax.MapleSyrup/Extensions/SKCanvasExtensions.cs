@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using SamllHax.PlatformerLogic;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,12 @@ namespace SamllHax.MapleSyrup.Extensions
         {
             canvas.SetMatrix(matrix);
             canvas.DrawImage(bitmap, 0, 0);
+        }
+
+        public static void DrawLine(this SKCanvas canvas, ILineSegment lineSegment, SKPaint paint, SKMatrix matrix)
+        {
+            canvas.SetMatrix(matrix);
+            canvas.DrawLine(lineSegment.X1, lineSegment.Y1, lineSegment.X2, lineSegment.Y2, paint);
         }
     }
 }

@@ -3,6 +3,7 @@ using SamllHax.MapleSyrup.Draw;
 using SamllHax.MapleSyrup.Helpers;
 using SamllHax.MapleSyrup.Interfaces.Data;
 using SamllHax.MapleSyrup.Interfaces.Interfaces.Providers;
+using SamllHax.PlatformerLogic;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;

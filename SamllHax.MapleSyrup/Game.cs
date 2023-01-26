@@ -52,7 +52,6 @@ namespace SamllHax.MapleSyrup
         ) : base
         (
             GameWindowSettings.Default,
-            //new GameWindowSettings() { RenderFrequency = 60, UpdateFrequency = 15 },
             new NativeWindowSettings() { Size = (configuration.GetSection("Window").GetValue<int>("Width"), configuration.GetSection("Window").GetValue<int>("Height")), Title = "MyWindow" })
         {
             _logger = logger;

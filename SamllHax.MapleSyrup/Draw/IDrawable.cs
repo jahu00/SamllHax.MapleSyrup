@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.ES11;
 using SamllHax.MapleSyrup.Extensions;
 using SamllHax.MapleSyrup.Interfaces.Data;
+using SamllHax.PlatformerLogic;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -10,12 +11,10 @@ using System.Threading.Tasks;
 
 namespace SamllHax.MapleSyrup.Draw
 {
-    public interface IDrawable
+    public interface IDrawable: IPoint
     {
         int OriginX { get; }
         int OriginY { get; }
-        float X { get; }
-        float Y { get; }
         float ScaleX { get; }
         float ScaleY { get; }
         void Draw(SKCanvas canvas, SKMatrix matrix);

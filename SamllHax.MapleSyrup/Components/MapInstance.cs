@@ -1,7 +1,8 @@
-﻿using OpenTK.Windowing.Common;
-using SamllHax.MapleSyrup.Draw;
+﻿using SamllHax.MapleSyrup.Draw;
 using SamllHax.MapleSyrup.Helpers;
 using SamllHax.MapleSyrup.Interfaces.Data;
+using SamllHax.MapleSyrup.Extensions;
+using SamllHax.PlatformerLogic;
 using SkiaSharp;
 
 namespace SamllHax.MapleSyrup.Components
@@ -79,17 +80,17 @@ namespace SamllHax.MapleSyrup.Components
 
         private int GetMinX()
         {
-            return (int)(Footholds.Where(x => !x.IsVertical).Min(x => (float?)x.BoudingBox.Left) ?? BoundingBox.Left);
+            return (int)(Footholds.Where(x => x.Type != LineType.Vertical).Min(x => (float?)x.Left) ?? BoundingBox.Left);
         }
 
         private int GetMaxX()
         {
-            return (int)(Footholds.Where(x => !x.IsVertical).Max(x => (float?)x.BoudingBox.Right) ?? BoundingBox.Right);
+            return (int)(Footholds.Where(x => x.Type != LineType.Vertical).Max(x => (float?)x.Right) ?? BoundingBox.Right);
         }
 
         private int GetMaxY()
         {
-            return (int)(Footholds.Where(x => !x.IsVertical).Max(x => (float?)x.BoudingBox.Bottom) ?? BoundingBox.Bottom);
+            return (int)(Footholds.Where(x => x.Type != LineType.Vertical).Max(x => (float?)x.Bottom) ?? BoundingBox.Bottom);
         }
 
         private void LinkFootholds(List<Foothold> footholds)
@@ -106,16 +107,6 @@ namespace SamllHax.MapleSyrup.Components
                     x.Previous = previousFoothold;
                 }
             });
-        }
-
-        public MatchingFoothold[] GetFootholdsForX(float x)
-        {
-            var footholds = Footholds.Where(foothold => !foothold.IsVertical && foothold.ContainsHorizontally(x)).Select(foothold => new MatchingFoothold() { Foothold = foothold, Y = foothold.GetY(x)}).OrderBy(pair => pair.Y).ToArray();
-            if (footholds.Count() > 0)
-            {
-                footholds.Last().IsLast = true;
-            }
-            return footholds;
         }
 
         List<Foothold> ExtractFootholds(int layerId, IEntityDirectory<IMapFoothold> footholdDirectory, int watchdog = 10)
@@ -148,24 +139,11 @@ namespace SamllHax.MapleSyrup.Components
                     {
                         LayerId = layerId,
                         Data = x,
-                        Paint = FootholdPaint
                     };
-                    //footholdIndex.Add(Convert.ToInt32(x.Name), foothold);
                     return foothold;
                 }
             ).ToList();
 
-            /*footholds.ForEach(x =>
-            {
-                if (x.Data.Next != 0 && footholdIndex.TryGetValue(x.Data.Next, out var nextFoothold))
-                {
-                    x.Next = nextFoothold;
-                }
-                if (x.Data.Previous != 0 && footholdIndex.TryGetValue(x.Data.Previous, out var previousFoothold))
-                {
-                    x.Previous = previousFoothold;
-                }
-            });*/
             return footholds;
         }
 
@@ -181,19 +159,19 @@ namespace SamllHax.MapleSyrup.Components
 
         public void Draw(SKCanvas canvas, SKMatrix matrix)
         {
+            var transformedMatrix = this.GetTransformMatrix(matrix);
             for (var layerId = 0; layerId < Constants.LayerCount; layerId++)
             {
                 var layer = Layers.Children[layerId];
-                layer.Draw(canvas, this.GetTransformMatrix(matrix));
+                layer.Draw(canvas, transformedMatrix);
                 if (Character.Z == layerId)
                 {
-                    Character.Draw(canvas, this.GetTransformMatrix(matrix));
+                    Character.Draw(canvas, transformedMatrix);
                 }
             }
-            //Layers.Draw(canvas, this.GetTransformMatrix(matrix));
             //canvas.DrawRect(new SKRectI(offsetX + BoundingBox.Left, offsetY + BoundingBox.Top, offsetX + BoundingBox.Right, offsetY + BoundingBox.Bottom), new SKPaint() { Color = SKColors.Red, Style = SKPaintStyle.Stroke });
-            Portals.Draw(canvas, this.GetTransformMatrix(matrix));
-            Footholds.ForEach(foothold => foothold.Draw(canvas, matrix));
+            Portals.Draw(canvas, transformedMatrix);
+            Footholds.ForEach(foothold => canvas.DrawLine(foothold, FootholdPaint, transformedMatrix));
         }
 
         public void OnUpdate(UpdateEvents events)

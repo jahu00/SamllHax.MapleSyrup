@@ -5,6 +5,7 @@ using SamllHax.MapleSyrup.Interfaces.Providers;
 using SamllHax.MapleSyrup.Providers.Dumper;
 using SamllHax.MapleSyrup.Helpers;
 using Microsoft.Extensions.Logging;
+using SamllHax.PlatformerLogic;
 
 namespace SamllHax.MapleSyrup
 {
@@ -19,6 +20,7 @@ namespace SamllHax.MapleSyrup
             var hostBuilder = Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
                 {
+                    services.AddSingleton<CollisionDetector>();
                     services.AddSingleton<FpsCounter>();
                     services.AddSingleton<GrContextManager>();
                     services.AddSingleton<IResourceProvider, DumperResourceProvider>();
