@@ -6,13 +6,10 @@ using System.Threading.Tasks;
 
 namespace SamllHax.MapleSyrup
 {
-    public enum PlayerState
+    public enum PhysicsState
     {
-        Stand,
-        Walk,
-        Fall,
-        Attack,
-        Jump,
-        Prone
+        OnPlatform,
+        Airborn,
+        Climb
     }
 }

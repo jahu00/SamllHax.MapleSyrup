@@ -126,7 +126,7 @@ namespace SamllHax.MapleSyrup
                 var portalInstance = _mapInstance.Portals.Children.Cast<PortalInstance>().FirstOrDefault(x => x.GetBoundingBox().Contains((int)_mapInstance.Character.X, (int)_mapInstance.Character.Y));
                 if (portalInstance != null && portalInstance.MapPortal.TargetMapId < 999999999)
                 {
-                    if (portalInstance.MapPortal.TargetMapId.ToString() == _mapInstance.Map.Name)
+                    if (portalInstance.MapPortal.TargetMapId.ToString() == _mapInstance.MapData.Name)
                     {
                         _mapInstance.Character.X = portalInstance.X;
                         _mapInstance.Character.Y = portalInstance.Y;

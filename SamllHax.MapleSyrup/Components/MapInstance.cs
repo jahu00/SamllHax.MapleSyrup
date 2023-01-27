@@ -1,4 +1,5 @@
-﻿using SamllHax.MapleSyrup.Draw;
+﻿using Logic = SamllHax.MapleSyrup.Logic;
+using SamllHax.MapleSyrup.Draw;
 using SamllHax.MapleSyrup.Helpers;
 using SamllHax.MapleSyrup.Interfaces.Data;
 using SamllHax.MapleSyrup.Extensions;
@@ -12,14 +13,16 @@ namespace SamllHax.MapleSyrup.Components
         private readonly ResourceManager _resourceManager;
         private readonly ComponentHelper _componentHelper;
         private readonly CommonData _commonData;
-        public IMap Map { get; private set; }
+        public IMap MapData { get; private set; }
         public DrawableCollection Layers { get; private set; }
         public DrawableCollection Portals { get; private set; }
         public PlayerInstance Character { get; private set; }
         public SKRectI BoundingBox { get; private set; }
 
         private SKPaint FootholdPaint { get; set; } = new SKPaint() { Color = SKColors.Red };
-        public List<Foothold> Footholds { get; private set; }
+        public List<Logic.Foothold> Footholds { get; private set; }
+        public List<Logic.Foothold> Walls { get; private set; }
+        public List<Logic.Foothold> Platforms { get; private set; }
 
         public int MaxY = int.MinValue;
         public int MinX = int.MaxValue;
@@ -34,9 +37,9 @@ namespace SamllHax.MapleSyrup.Components
 
         public MapInstance Init(int mapId, string portalName = null)
         {
-            Map = _resourceManager.GetMap(this, mapId);
-            Layers = new DrawableCollection(BuildLayers(Map.Layers));
-            Portals = new DrawableCollection(BuildPortals(Map.Portals));
+            MapData = _resourceManager.GetMap(this, mapId);
+            Layers = new DrawableCollection(BuildLayers(MapData.Layers));
+            Portals = new DrawableCollection(BuildPortals(MapData.Portals));
             BoundingBox = Layers.GetBoundingBox();
             var characterSprite = new Sprite()
             {
@@ -51,7 +54,7 @@ namespace SamllHax.MapleSyrup.Components
             Character = _componentHelper.CreatePlayerInstance(characterSprite, this);
             if (string.IsNullOrEmpty(portalName))
             {
-                var spawnPortals = Map.Portals.Where(x => x.PortalType == PortalType.SPAWN).ToArray();
+                var spawnPortals = MapData.Portals.Where(x => x.PortalType == PortalType.SPAWN).ToArray();
                 if (spawnPortals.Count() == 0)
                 {
                     throw new Exception($"Map {mapId} has no spawn portals");
@@ -61,7 +64,7 @@ namespace SamllHax.MapleSyrup.Components
                 Character.Y = spawnPortal.Y;
             } else
             {
-                var spawnPortal = Map.Portals.SingleOrDefault(x => x.PortalName == portalName);
+                var spawnPortal = MapData.Portals.SingleOrDefault(x => x.PortalName == portalName);
                 if (spawnPortal == null)
                 {
                     throw new Exception($"Portal with name {portalName} not found on map {mapId}");
@@ -70,11 +73,13 @@ namespace SamllHax.MapleSyrup.Components
                 Character.Y = spawnPortal.Y;
             }
 
-            Footholds = Map.Footholds.Select(x => ExtractFootholds(Convert.ToInt32(x.Key), x.Value)).SelectMany(x => x).ToList();
+            Footholds = MapData.Footholds.Select(x => ExtractFootholds(Convert.ToInt32(x.Key), x.Value)).SelectMany(x => x).ToList();
             LinkFootholds(Footholds);
             MaxY = GetMaxY();
             MinX = GetMinX();
             MaxX = GetMaxX();
+            Walls = Footholds.Where(x => x.Type == LineType.Vertical).ToList();
+            Platforms = Footholds.Where(x => x.Type != LineType.Vertical).ToList();
             return this;
         }
 
@@ -93,7 +98,7 @@ namespace SamllHax.MapleSyrup.Components
             return (int)(Footholds.Where(x => x.Type != LineType.Vertical).Max(x => (float?)x.Bottom) ?? BoundingBox.Bottom);
         }
 
-        private void LinkFootholds(List<Foothold> footholds)
+        private void LinkFootholds(List<Logic.Foothold> footholds)
         {
             var footholdIndex = footholds.ToDictionary(x => Convert.ToInt32(x.Data.Name), x => x);
             footholds.ForEach(x =>
@@ -109,28 +114,28 @@ namespace SamllHax.MapleSyrup.Components
             });
         }
 
-        List<Foothold> ExtractFootholds(int layerId, IEntityDirectory<IMapFoothold> footholdDirectory, int watchdog = 10)
+        List<Logic.Foothold> ExtractFootholds(int layerId, IEntityDirectory<IMapFoothold> footholdDirectory, int watchdog = 10)
         {
             watchdog--;
             if (watchdog <= 0)
             {
                 throw new Exception("Watchdog triggered");
             }
-            var result = new List<Foothold>();
+            var result = new List<Logic.Foothold>();
             result.AddRange(footholdDirectory.Directories.Select(x => ExtractFootholds(layerId, x.Value, watchdog)).SelectMany(x => x));
-            List<Foothold> footholds = GetFoodholds(layerId, footholdDirectory.Entities);
+            List<Logic.Foothold> footholds = GetFoodholds(layerId, footholdDirectory.Entities);
             result.AddRange(footholds);
             return result;
         }
 
-        private List<Foothold> GetFoodholds(int layerId, IDictionary<string,IMapFoothold> entities)
+        private List<Logic.Foothold> GetFoodholds(int layerId, IDictionary<string,IMapFoothold> entities)
         {
             //var footholdIndex = new Dictionary<int, Foothold>();
             var footholds = entities.Select(x => x.Value).Select
             (
                 x =>
                 {
-                    var foothold = new Foothold(
+                    var foothold = new Logic.Foothold(
                         x1: x.X1,
                         y1: x.Y1,
                         x2: x.X2,

@@ -8,30 +8,31 @@ namespace SamllHax.PlatformerLogic
 {
     public class CollisionDetector
     {
-        public T GetPlatformBelow<T>(IEnumerable<T> wallsAndPlatforms, IPoint point, out float? platformY, out bool isLastPlatform) where T : class, ILineSegment
+        public T GetPlatformBelow<T>(IEnumerable<T> platforms, IPoint point, out float? platformY, out bool isLastPlatform, float tolerance = 1) where T : class, ILineSegment
         {
-            return GetPlatformBelow(wallsAndPlatforms: wallsAndPlatforms, x: point.X, y: point.Y, platformY: out platformY, isLastPlatform: out isLastPlatform);
+            return GetPlatformBelow(platforms: platforms, x: point.X, y: point.Y, platformY: out platformY, isLastPlatform: out isLastPlatform, tolerance: tolerance);
         }
 
-        public T GetPlatformBelow<T>(IEnumerable<T> wallsAndPlatforms, float x, float y, out float? platformY, out bool isLastPlatform) where T : class, ILineSegment
+        public T GetPlatformBelow<T>(IEnumerable<T> platforms, float x, float y, out float? platformY, out bool isLastPlatform, float tolerance = 1) where T : class, ILineSegment
         {
-            var platfromsBelow = wallsAndPlatforms.Where(wallOrPlatform => wallOrPlatform.Type != LineType.Vertical && wallOrPlatform.ContainsHorizontally(x)).Select(platform => new { Platform = platform, Y = platform.GetY(x) }).Where(pair => pair.Y > y).OrderBy(pair => pair.Y).ToArray();
+            var offsetY = y - tolerance;
+            var platfromsBelow = platforms.Where(testedPlatform => testedPlatform.ContainsHorizontally(x)).Select(platform => new { Platform = platform, Y = platform.GetY(x) }).Where(pair => pair.Y > offsetY).OrderBy(pair => pair.Y).ToArray();
             isLastPlatform = platfromsBelow.Count() == 1;
             var platformBelow = platfromsBelow.FirstOrDefault();
             platformY = platformBelow?.Y;
             return platformBelow?.Platform;
         }
 
-        public bool WillCollideWithWall<T>(IEnumerable<T> wallsAndPlatforms, IPoint point, float nextX, out T wall) where T : class, ILineSegment
+        public bool WillCollideWithWall<T>(IEnumerable<T> walls, IPoint point, float nextX, out T wall, float tolerance = 1) where T : class, ILineSegment
         {
-            return WillCollideWithWall(wallsAndPlatforms: wallsAndPlatforms, x: point.X, y: point.Y, nextX: nextX, wall: out wall);
+            return WillCollideWithWall(walls: walls, x: point.X, y: point.Y, nextX: nextX, wall: out wall, tolerance: tolerance);
         }
 
-        public bool WillCollideWithWall<T>(IEnumerable<T> wallsAndPlatforms, float x, float y, float nextX, out T wall) where T : class, ILineSegment
+        public bool WillCollideWithWall<T>(IEnumerable<T> walls, float x, float y, float nextX, out T wall, float tolerance = 1) where T : class, ILineSegment
         {
-            var minX = Math.Floor(Math.Min(x, nextX));
-            var maxX = Math.Ceiling(Math.Max(x, nextX));
-            wall = wallsAndPlatforms.Where(wallOrPlatform => wallOrPlatform.Type == LineType.Vertical && wallOrPlatform.ContainsVertically(y) && minX < wallOrPlatform.X1 && maxX > wallOrPlatform.X1).FirstOrDefault();
+            var minX = Math.Min(x, nextX) - tolerance;
+            var maxX = Math.Max(x, nextX) + tolerance;
+            wall = walls.Where(testedWall => testedWall.ContainsVertically(y) && minX < testedWall.X1 && maxX > testedWall.X1).FirstOrDefault();
             return wall != null;
         }
 

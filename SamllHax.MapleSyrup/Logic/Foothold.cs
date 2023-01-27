@@ -1,7 +1,7 @@
 ﻿using SamllHax.MapleSyrup.Interfaces.Data;
 using SamllHax.PlatformerLogic;
 
-namespace SamllHax.MapleSyrup.Draw
+namespace SamllHax.MapleSyrup.Logic
 {
     public class Foothold : LineSegment
     {

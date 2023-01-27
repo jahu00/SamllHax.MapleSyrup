@@ -1,5 +1,6 @@
 ﻿using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using Logic = SamllHax.MapleSyrup.Logic;
 using SamllHax.MapleSyrup.Draw;
 using SamllHax.PlatformerLogic;
 using SkiaSharp;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace SamllHax.MapleSyrup.Components
 {
-    public class PlayerInstance : ComponentBase, IDrawable, IUpdatable
+    public class PlayerInstance : ComponentBase, IPhysicsObject, IDrawable, IUpdatable
     {
         const int footholdWidth = 5;
 
@@ -20,25 +21,20 @@ namespace SamllHax.MapleSyrup.Components
 
         //private readonly Game _game;
 
-        public PlayerState State { get; private set; } = PlayerState.Stand;
+        public PhysicsState PhysicsState { get; private set; } = PhysicsState.Airborn;
 
-        public float SpeedX { get; set; }
-        public float SpeedY { get; set; }
+        public bool IsOnRail => PhysicsState == PhysicsState.OnPlatform;
+        public bool IsAirborn => PhysicsState == PhysicsState.Airborn;
+        public bool IsClimbing => PhysicsState == PhysicsState.Climb;
+        public bool IsFalling => IsAirborn && SpeedY.Value > 0;
+
+        public Speed SpeedX { get; } = new Speed();
+        public Speed SpeedY { get; } = new Speed();
 
         public IDrawable Sprite { get; set; }
         public MapInstance MapInstance { get; set; }
 
-        public bool IsOnRail { get; set; } = false;
-        public bool IsAirborn { get
-            {
-                return !IsOnRail;
-            }
-            set
-            {
-                IsOnRail = !value;
-            }
-        }
-        public Foothold LastFoothold { get; set; }
+        public Logic.Foothold LastPlatform { get; set; }
 
         public PlayerInstance(CommonData commonData, CollisionDetector collisionDetector)
         {
@@ -54,10 +50,23 @@ namespace SamllHax.MapleSyrup.Components
 
         public void OnUpdate(UpdateEvents events)
         {
-            var footholdBelow = _collisionDetector.GetPlatformBelow(MapInstance.Footholds, X, Y - footholdWidth, out var _, out var isLastFoothold);
-            if (IsAirborn && footholdBelow != null && LastFoothold != footholdBelow)
+            var footholdBelow = _collisionDetector.GetPlatformBelow(MapInstance.Footholds, this, out var _, out var isLastFoothold, tolerance: footholdWidth);
+            if (IsAirborn && footholdBelow != null && LastPlatform != footholdBelow)
             {
-                LastFoothold = footholdBelow;
+                LastPlatform = footholdBelow;
+            }
+
+            if (IsOnRail)
+            {
+                SpeedY.Stop();
+            }
+            if (IsClimbing)
+            {
+                SpeedX.Stop();
+            }
+            if (IsAirborn)
+            {
+                this.ApplyGravity(events.Delta, _commonData.Physics.GravityAcc, _commonData.Physics.FallSpeed);
             }
 
             var isWalking = false;
@@ -65,153 +74,116 @@ namespace SamllHax.MapleSyrup.Components
             {
                 ScaleX = 1;
                 isWalking = true;
-                var maxSpeed = -1 * _commonData.Physics.WalkSpeed;
-                if (SpeedX > maxSpeed)
-                {
-                    SpeedX -= events.Delta * (_commonData.Physics.WalkForce - _commonData.Physics.WalkDrag);
-                    if (SpeedX < maxSpeed)
-                    {
-                        SpeedX = maxSpeed;
-                    }
-                }
+                this.MoveHorizontally(events.Delta, _commonData.Physics.WalkDrag - _commonData.Physics.WalkForce, _commonData.Physics.WalkSpeed);
             }
 
             if (events.KeyboardState.IsKeyDown(Keys.Right))
             {
                 ScaleX = -1;
                 isWalking = true;
-                var maxSpeed = _commonData.Physics.WalkSpeed;
-                if (SpeedX < maxSpeed)
-                {
-                    SpeedX += events.Delta * (_commonData.Physics.WalkForce - _commonData.Physics.WalkDrag);
-                    if (SpeedX > maxSpeed)
-                    {
-                        SpeedX = maxSpeed;
-                    }
-                }
+                this.MoveHorizontally(events.Delta, _commonData.Physics.WalkForce - _commonData.Physics.WalkDrag, _commonData.Physics.WalkSpeed);
             }
 
-            if (!isWalking)
+            if (!isWalking && !SpeedX.IsStopped)
             {
-                var drag = _commonData.Physics.WalkDrag * events.Delta;
-                if (drag > Math.Abs(SpeedX))
+                var drag = _commonData.Physics.WalkDrag * SpeedX.OppositeDirection;
+                this.MoveHorizontally(events.Delta, drag, 0);
+            }
+
+
+            if (IsOnRail && events.KeyboardState.IsKeyPressed(Keys.Down))
+            {
+                if (footholdBelow != null && LastPlatform.Data.ForbidFallDown != true && !isLastFoothold)
                 {
-                    SpeedX = 0;
-                }
-                else
-                {
-                    SpeedX -= Math.Sign(SpeedX) * drag;
+                    Y += footholdWidth + 1;
+                    PhysicsState = PhysicsState.Airborn;
+                    return;
                 }
             }
 
+            if (IsOnRail && events.KeyboardState.IsKeyPressed(Keys.Up))
+            {
+                this.Jump(_commonData.Physics.JumpSpeed);
+                PhysicsState = PhysicsState.Airborn;
+            }
+           
+            this.GetNewPosition(events.Delta, out var newX, out var newY);
             if (IsOnRail)
             {
-                if (events.KeyboardState.IsKeyPressed(Keys.Down))
+                if (newX < LastPlatform.X1)
                 {
-                    if (footholdBelow != null && LastFoothold.Data.ForbidFallDown != true && !isLastFoothold)
+                    if (LastPlatform.Previous == null)
                     {
-                        Y += footholdWidth + 1;
-                        IsAirborn = true;
-                        return;
-                    }
-                }
-                if (events.KeyboardState.IsKeyPressed(Keys.Up))
-                {
-                    SpeedY -= _commonData.Physics.JumpSpeed;
-                    IsAirborn = true;
-                }
-            } else
-            {
-                if (SpeedY < _commonData.Physics.FallSpeed)
-                {
-                    SpeedY += (float)(events.Delta * _commonData.Physics.GravityAcc);
-                    if (SpeedY > _commonData.Physics.GravityAcc)
+                        PhysicsState = PhysicsState.Airborn;
+                    } else if (LastPlatform.Previous?.Type != LineType.Vertical) //Continuation
                     {
-                        SpeedY = _commonData.Physics.GravityAcc;
-                    }
-                }
-            }
-
-            
-            var newX = X + events.Delta * SpeedX;
-            var newY = Y + events.Delta * SpeedY;
-            if (IsOnRail)
-            {
-                if (newX < LastFoothold.X1)
-                {
-                    if (LastFoothold.Previous == null)
+                        LastPlatform = LastPlatform.Previous;
+                        newX = LastPlatform.X2;
+                        newY = LastPlatform.Y2;
+                    } else if (LastPlatform.Previous?.Y1 < LastPlatform.Y1) // Wall
                     {
-                        IsAirborn = true;
-                    } else if (LastFoothold.Previous?.Type != LineType.Vertical) //Continuation
-                    {
-                        LastFoothold = LastFoothold.Previous;
-                        newX = LastFoothold.X2;
-                        newY = LastFoothold.Y2;
-                    } else if (LastFoothold.Previous?.Y1 < LastFoothold.Y1) // Wall
-                    {
-                        newX = LastFoothold.X1;
-                        newY = LastFoothold.Y1;
-                        SpeedX = 0;
+                        newX = LastPlatform.X1;
+                        newY = LastPlatform.Y1;
+                        SpeedX.Stop();
                     } else // Cliff
                     {
-                        newX = LastFoothold.Previous.X1 - 1;
-                        IsAirborn = true;
+                        newX = LastPlatform.Previous.X1 - 1;
+                        PhysicsState = PhysicsState.Airborn;
                     }
-                } else if (newX > LastFoothold.X2)
+                } else if (newX > LastPlatform.X2)
                 {
-                    if (LastFoothold.Next == null)
+                    if (LastPlatform.Next == null)
                     {
-                        IsAirborn = true;
+                        PhysicsState = PhysicsState.Airborn;
                     }
-                    else if (LastFoothold.Next?.Type != LineType.Vertical) //Continuation
+                    else if (LastPlatform.Next?.Type != LineType.Vertical) //Continuation
                     {
-                        LastFoothold = LastFoothold.Next;
-                        newX = LastFoothold.X1;
-                        newY = LastFoothold.Y1;
+                        LastPlatform = LastPlatform.Next;
+                        newX = LastPlatform.X1;
+                        newY = LastPlatform.Y1;
                     }
-                    else if (LastFoothold.Next?.Y2 < LastFoothold.Y2) // Wall
+                    else if (LastPlatform.Next?.Y2 < LastPlatform.Y2) // Wall
                     {
-                        newX = LastFoothold.X2;
-                        newY = LastFoothold.Y2;
-                        SpeedX = 0;
+                        newX = LastPlatform.X2;
+                        newY = LastPlatform.Y2;
+                        SpeedX.Stop();
                     }
                     else // Cliff
                     {
-                        newX = LastFoothold.Next.X1 + 1;
-                        IsAirborn = true;
+                        newX = LastPlatform.Next.X1 + 1;
+                        PhysicsState = PhysicsState.Airborn;
                     }
                 } else
                 {
-                    newY = (int)LastFoothold.GetY(newX);
+                    newY = (int)LastPlatform.GetY(newX);
                 }
             }
             else
             {
-                if (LastFoothold != null && SpeedY > 0)
+                if (LastPlatform != null && IsFalling)
                 {
-                    var maxY = LastFoothold.GetY(newX);
+                    var maxY = LastPlatform.GetY(newX);
                     if (newY > maxY)
                     {
                         newY = maxY;
-                        IsOnRail = true;
-                        SpeedY = 0;
-                        Z = LastFoothold.LayerId;
+                        PhysicsState = PhysicsState.OnPlatform;
+                        Z = LastPlatform.LayerId;
                     }
                 }
-                if (_collisionDetector.WillCollideWithWall(MapInstance.Footholds, this, newX, out var wall))
+                if (_collisionDetector.WillCollideWithWall(MapInstance.Walls, this, newX, out var wall))
                 {
-                    newX = wall.X1 - Math.Sign(SpeedX);
+                    newX = wall.X1 + SpeedX.OppositeDirection;
                 }
             }
 
             if (newY > MapInstance.MaxY)
             {
                 newY = MapInstance.MaxY;
-                SpeedY = 0;
+                SpeedY.Stop();
             } else if (newY > MapInstance.MaxY)
             {
                 newY = MapInstance.MaxY;
-                SpeedY = 0;
+                SpeedY.Stop();
             }
             /*else if (newY < mapBoundingBox.Top)
             {
@@ -222,10 +194,12 @@ namespace SamllHax.MapleSyrup.Components
             if (newX < MapInstance.MinX)
             {
                 newX = MapInstance.MinX;
+                SpeedX.Stop();
             }
             else if (newX > MapInstance.MaxX)
             {
                 newX = MapInstance.MaxX;
+                SpeedX.Stop();
             }
 
             X = (float)newX;
