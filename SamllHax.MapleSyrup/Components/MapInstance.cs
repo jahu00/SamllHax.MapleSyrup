@@ -5,11 +5,16 @@ using SamllHax.MapleSyrup.Interfaces.Data;
 using SamllHax.MapleSyrup.Extensions;
 using SamllHax.PlatformerLogic;
 using SkiaSharp;
+using Microsoft.Extensions.Configuration;
 
 namespace SamllHax.MapleSyrup.Components
 {
     public class MapInstance: ComponentBase, IDrawable, IUpdatable, IBoundable
     {
+        private readonly IConfigurationSection _configuration;
+
+        public bool DebugMode { get; private set; }
+
         private readonly ResourceManager _resourceManager;
         private readonly ComponentHelper _componentHelper;
         private readonly CommonData _commonData;
@@ -19,7 +24,8 @@ namespace SamllHax.MapleSyrup.Components
         public PlayerInstance Character { get; private set; }
         public SKRectI BoundingBox { get; private set; }
 
-        private SKPaint FootholdPaint { get; set; } = new SKPaint() { Color = SKColors.Red };
+        private SKPaint footholdPaint = new SKPaint() { Color = SKColors.Red };
+        private SKPaint boudingBoxPaint = new SKPaint() { Color = SKColors.Red, Style = SKPaintStyle.Stroke };
         public List<Logic.Foothold> Footholds { get; private set; }
         public List<Logic.Foothold> Walls { get; private set; }
         public List<Logic.Foothold> Platforms { get; private set; }
@@ -28,8 +34,10 @@ namespace SamllHax.MapleSyrup.Components
         public int MinX = int.MaxValue;
         public int MaxX = int.MinValue;
 
-        public MapInstance(ResourceManager resourceManager, ComponentHelper componentHelper, CommonData commonData)
+        public MapInstance(IConfiguration configuration, ResourceManager resourceManager, ComponentHelper componentHelper, CommonData commonData)
         {
+            _configuration = configuration.GetSection("MapInstance");
+            DebugMode = _configuration.GetValue<bool>("Debug");
             _resourceManager = resourceManager;
             _componentHelper = componentHelper;
             _commonData = commonData;
@@ -174,9 +182,12 @@ namespace SamllHax.MapleSyrup.Components
                     Character.Draw(canvas, transformedMatrix);
                 }
             }
-            //canvas.DrawRect(new SKRectI(offsetX + BoundingBox.Left, offsetY + BoundingBox.Top, offsetX + BoundingBox.Right, offsetY + BoundingBox.Bottom), new SKPaint() { Color = SKColors.Red, Style = SKPaintStyle.Stroke });
             Portals.Draw(canvas, transformedMatrix);
-            Footholds.ForEach(foothold => canvas.DrawLine(foothold, FootholdPaint, transformedMatrix));
+            if (DebugMode)
+            {
+                Footholds.ForEach(foothold => canvas.DrawLine(foothold, footholdPaint, transformedMatrix));
+                canvas.DrawRect(BoundingBox, boudingBoxPaint, transformedMatrix);
+            }
         }
 
         public void OnUpdate(UpdateEvents events)

@@ -27,5 +27,11 @@ namespace SamllHax.MapleSyrup.Extensions
             canvas.SetMatrix(matrix);
             canvas.DrawLine(lineSegment.X1, lineSegment.Y1, lineSegment.X2, lineSegment.Y2, paint);
         }
+
+        public static void DrawRect(this SKCanvas canvas, SKRect rect, SKPaint paint, SKMatrix matrix)
+        {
+            canvas.SetMatrix(matrix);
+            canvas.DrawRect(rect, paint);
+        }
     }
 }
