@@ -28,6 +28,10 @@ namespace SamllHax.PlatformerLogic
 
         public LineType Type { get; }
 
+        public LineSegment(float x, float y1, float y2): this(x1: x, y1: y1, x2: x, y2: y2)
+        {
+        }
+
         public LineSegment(float x1, float y1, float x2, float y2)
         {
             if (x2 < x1)

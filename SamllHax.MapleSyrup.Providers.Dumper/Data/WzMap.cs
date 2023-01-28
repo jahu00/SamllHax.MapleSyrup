@@ -28,6 +28,7 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
                     Footholds.Add(footholdLayer.Name, footholdLayer);
                 }
             }
+            Ladders = _directory.GetSingleChild<WzDirectory>("ladderRope").Children.Cast<WzDirectory>().Select(x => (IMapLadder)new WzMapLadder(x)).ToList();
             MapMark = _directory.GetSingleChild<WzDirectory>("info").GetSingleChild<WzStringValue>("mapMark").Value;
         }
 
@@ -36,5 +37,6 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
         public List<IMapPortal> Portals { get; } = new List<IMapPortal>();
 
         public IDictionary<string, IEntityDirectory<IMapFoothold>> Footholds { get; } = new Dictionary<string, IEntityDirectory<IMapFoothold>>();
+        public List<IMapLadder> Ladders { get; } = new List<IMapLadder>();
     }
 }

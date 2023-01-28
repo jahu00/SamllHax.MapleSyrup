@@ -25,10 +25,12 @@ namespace SamllHax.MapleSyrup.Components
         public SKRectI BoundingBox { get; private set; }
 
         private SKPaint footholdPaint = new SKPaint() { Color = SKColors.Red };
+        private SKPaint ladderPaint = new SKPaint() { Color = SKColors.DeepSkyBlue };
         private SKPaint boudingBoxPaint = new SKPaint() { Color = SKColors.Red, Style = SKPaintStyle.Stroke };
         public List<Logic.Foothold> Footholds { get; private set; }
         public List<Logic.Foothold> Walls { get; private set; }
         public List<Logic.Foothold> Platforms { get; private set; }
+        public List<Logic.Ladder> Ladders { get; private set; }
 
         public int MaxY = int.MinValue;
         public int MinX = int.MaxValue;
@@ -51,10 +53,7 @@ namespace SamllHax.MapleSyrup.Components
             BoundingBox = Layers.GetBoundingBox();
             var characterSprite = new Sprite()
             {
-                /*X = BoundingBox.Left,
-                Y = BoundingBox.MidY,*/
                 Image = _resourceManager.GetMobImage(this, "0100100", "stand", "0"),
-                //ScaleX = -1,
                 OriginX = 18,
                 OriginY = 26
             };
@@ -88,6 +87,7 @@ namespace SamllHax.MapleSyrup.Components
             MaxX = GetMaxX();
             Walls = Footholds.Where(x => x.Type == LineType.Vertical).ToList();
             Platforms = Footholds.Where(x => x.Type != LineType.Vertical).ToList();
+            Ladders = MapData.Ladders.Select(x => new Logic.Ladder(x)).ToList();
             return this;
         }
 
@@ -138,24 +138,7 @@ namespace SamllHax.MapleSyrup.Components
 
         private List<Logic.Foothold> GetFoodholds(int layerId, IDictionary<string,IMapFoothold> entities)
         {
-            //var footholdIndex = new Dictionary<int, Foothold>();
-            var footholds = entities.Select(x => x.Value).Select
-            (
-                x =>
-                {
-                    var foothold = new Logic.Foothold(
-                        x1: x.X1,
-                        y1: x.Y1,
-                        x2: x.X2,
-                        y2: x.Y2
-                    )
-                    {
-                        LayerId = layerId,
-                        Data = x,
-                    };
-                    return foothold;
-                }
-            ).ToList();
+            var footholds = entities.Select(x => x.Value).Select(data => new Logic.Foothold(data, layerId)).ToList();
 
             return footholds;
         }
@@ -186,6 +169,7 @@ namespace SamllHax.MapleSyrup.Components
             if (DebugMode)
             {
                 Footholds.ForEach(foothold => canvas.DrawLine(foothold, footholdPaint, transformedMatrix));
+                Ladders.ForEach(ladder => canvas.DrawLine(ladder, ladderPaint, transformedMatrix));
                 canvas.DrawRect(BoundingBox, boudingBoxPaint, transformedMatrix);
             }
         }
