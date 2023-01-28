@@ -173,6 +173,7 @@ namespace SamllHax.MapleSyrup.Components
                 if (_collisionDetector.WillCollideWithWall(MapInstance.Walls, this, newX, out var wall))
                 {
                     newX = wall.X1 + SpeedX.OppositeDirection;
+                    SpeedX.Stop();
                 }
             }
 

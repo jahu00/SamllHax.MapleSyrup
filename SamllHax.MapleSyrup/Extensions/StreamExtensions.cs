@@ -19,5 +19,10 @@ namespace SamllHax.MapleSyrup.Extensions
         {
             return SKImage.FromEncodedData(stream); 
         }
+
+        public static SKImage ToImage(this Stream stream, GRContext grContext)
+        {
+            return SKImage.FromEncodedData(stream).ToTextureImage(grContext);
+        }
     }
 }

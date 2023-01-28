@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 namespace SamllHax.MapleSyrup
 {
     /// <summary>
-    /// Class for managing GRContext. It appeared it might be required for passing to SkImage to ensure GPU backed bitmaps, however, this appears to happen automatically (making this sowewhat redundant).
-    /// TODO: Possibly move GRContext back to Game class.
+    /// Class for managing GRContext. It appeared it might be required for passing to SKImage to ensure GPU backed bitmaps.
+    /// It's slightly better to force SkImages to be texture backed from the start, as automatic movement to textures
+    /// happens when they are first drawn, causing slight fps hiccup (as opposite to longer loading time).
     /// </summary>
     public class GrContextManager: IDisposable
     {

@@ -104,25 +104,25 @@ namespace SamllHax.MapleSyrup
         public SKImage GetTileImage(object owner, string tileSetName, string[] path)
         {
             var key = $"TileSet-{tileSetName}-{string.Join("-", path)}";
-            return GetFromCache(key, owner, () => _resourceProvider.GetTileImage(tileSetName, path).ToImage());
+            return GetFromCache(key, owner, () => _resourceProvider.GetTileImage(tileSetName, path).ToImage(_contextManager.GRContext));
         }
 
         public SKImage GetObjectImage(object owner, string objectDirectoryName, string[] path, string frameId)
         {
             var key = $"Obj-{objectDirectoryName}-{string.Join("-", path)}-{frameId}";
-            return GetFromCache(key, owner, () => _resourceProvider.GetObjectImage(objectDirectoryName, path, frameId).ToImage());
+            return GetFromCache(key, owner, () => _resourceProvider.GetObjectImage(objectDirectoryName, path, frameId).ToImage(_contextManager.GRContext));
         }
 
         public SKImage GetMobImage(object owner, string mobId, string animation, string frameId)
         {
             var key = $"Mob-{mobId}-{animation}-{frameId}";
-            return GetFromCache(key, owner, () => _resourceProvider.GetMobImage(mobId, animation, frameId).ToImage());
+            return GetFromCache(key, owner, () => _resourceProvider.GetMobImage(mobId, animation, frameId).ToImage(_contextManager.GRContext));
         }
 
         public SKImage GetImage(object owner, string file, string[] path, string frameId)
         {
             var key = $"{file}-{string.Join("-", path)}-{frameId}";
-            return GetFromCache(key, owner, () => _resourceProvider.GetImage(file, path, frameId).ToImage());
+            return GetFromCache(key, owner, () => _resourceProvider.GetImage(file, path, frameId).ToImage(_contextManager.GRContext));
         }
 
         public Dictionary<string, SKImage> GetImages(object owner, DataFiles dataFile, IEnumerable<string> path, IEnumerable<string> frameIds)
@@ -133,7 +133,7 @@ namespace SamllHax.MapleSyrup
         public Dictionary<string, SKImage> GetImages(object owner, string file, IEnumerable<string> path, IEnumerable<string> frameIds)
         {
             var key = $"{file}-{string.Join("-", path)}-frames";
-            return GetFromCache(key, owner, () => frameIds.Select(frameId => new { FrameId = frameId, Bitmap = _resourceProvider.GetImage(file, path, frameId).ToImage() }).ToDictionary(x => x.FrameId, x => x.Bitmap));
+            return GetFromCache(key, owner, () => frameIds.Select(frameId => new { FrameId = frameId, Bitmap = _resourceProvider.GetImage(file, path, frameId).ToImage(_contextManager.GRContext) }).ToDictionary(x => x.FrameId, x => x.Bitmap));
         }
 
         public Dictionary<string, SKImage> GetImages(object owner, DataFiles dataFile, IEnumerable<string> path, IDictionary<string,string> frameIdMappings)
@@ -144,7 +144,7 @@ namespace SamllHax.MapleSyrup
         public Dictionary<string, SKImage> GetImages(object owner, string file, IEnumerable<string> path, IDictionary<string, string> frameIdMappings)
         {
             var key = $"{file}-{string.Join("-", path)}-frames";
-            return GetFromCache(key, owner, () => frameIdMappings.Select(frameIdMapping => new { FrameId = frameIdMapping.Key, Bitmap = _resourceProvider.GetImage(file, path, frameIdMapping.Value).ToImage() }).ToDictionary(x => x.FrameId, x => x.Bitmap));
+            return GetFromCache(key, owner, () => frameIdMappings.Select(frameIdMapping => new { FrameId = frameIdMapping.Key, Bitmap = _resourceProvider.GetImage(file, path, frameIdMapping.Value).ToImage(_contextManager.GRContext) }).ToDictionary(x => x.FrameId, x => x.Bitmap));
         }
     }
 }

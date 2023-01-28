@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SamllHax.MapleSyrup.Extensions
 {
-    public static class SKrectExtensions
+    public static class SKRectExtensions
     {
         public static SKRectI ToRectI(this SKRect rect)
         {
