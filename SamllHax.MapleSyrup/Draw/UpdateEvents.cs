@@ -9,14 +9,14 @@ namespace SamllHax.MapleSyrup.Draw
 {
     public class UpdateEvents
     {
-        public UpdateEvents(float delta, KeyboardState keyboardState)
+        public UpdateEvents(float delta, InputEvents inputEvents)
         {
             Delta = delta;
-            KeyboardState = keyboardState;
+            InputEvents = inputEvents;
         }
 
         public float Delta { get; }
 
-        public KeyboardState KeyboardState { get; }
+        public InputEvents InputEvents { get; }
     }
 }

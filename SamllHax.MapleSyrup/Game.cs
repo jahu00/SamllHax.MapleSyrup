@@ -111,7 +111,8 @@ namespace SamllHax.MapleSyrup
 
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
-            var events = new UpdateEvents((float)args.Time, KeyboardState);
+            var inputEvents = _objectFactory.Create<InputEvents>().Init(KeyboardState);
+            var events = new UpdateEvents((float)args.Time, inputEvents);
             _mapInstance.Update(events);
 
             // Check if the Escape button is currently being pressed.
@@ -121,7 +122,7 @@ namespace SamllHax.MapleSyrup
                 Close();
             }
 
-            if (KeyboardState.IsKeyPressed(Keys.Space))
+            if (inputEvents.IsPressed(Draw.InputAction.UsePortal))
             {
                 var portalInstance = _mapInstance.Portals.Children.Cast<PortalInstance>().FirstOrDefault(x => x.GetBoundingBox().Contains((int)_mapInstance.Character.X, (int)_mapInstance.Character.Y));
                 if (portalInstance != null && portalInstance.MapPortal.TargetMapId < 999999999)

@@ -1,6 +1,4 @@
-﻿using OpenTK.Windowing.Common;
-using OpenTK.Windowing.GraphicsLibraryFramework;
-using Logic = SamllHax.MapleSyrup.Logic;
+﻿using Logic = SamllHax.MapleSyrup.Logic;
 using SamllHax.MapleSyrup.Draw;
 using SamllHax.PlatformerLogic;
 using SkiaSharp;
@@ -70,14 +68,14 @@ namespace SamllHax.MapleSyrup.Components
             }
 
             var isWalking = false;
-            if (events.KeyboardState.IsKeyDown(Keys.Left))
+            if (events.InputEvents.IsDown(InputAction.Left))
             {
                 ScaleX = 1;
                 isWalking = true;
                 this.MoveHorizontally(events.Delta, _commonData.Physics.WalkDrag - _commonData.Physics.WalkForce, _commonData.Physics.WalkSpeed);
             }
 
-            if (events.KeyboardState.IsKeyDown(Keys.Right))
+            if (events.InputEvents.IsDown(InputAction.Right))
             {
                 ScaleX = -1;
                 isWalking = true;
@@ -91,17 +89,16 @@ namespace SamllHax.MapleSyrup.Components
             }
 
 
-            if (IsOnRail && events.KeyboardState.IsKeyPressed(Keys.Down))
+            if (IsOnRail && events.InputEvents.IsPressed(InputAction.Jump) && events.InputEvents.IsDown(InputAction.Down))
             {
                 if (footholdBelow != null && LastPlatform.Data.ForbidFallDown != true && !isLastFoothold)
                 {
+                    SpeedY.Stop();
                     Y += footholdWidth + 1;
                     PhysicsState = PhysicsState.Airborn;
                     return;
                 }
-            }
-
-            if (IsOnRail && events.KeyboardState.IsKeyPressed(Keys.Up))
+            } else if (IsOnRail && events.InputEvents.IsPressed(InputAction.Jump))
             {
                 this.Jump(_commonData.Physics.JumpSpeed);
                 PhysicsState = PhysicsState.Airborn;
