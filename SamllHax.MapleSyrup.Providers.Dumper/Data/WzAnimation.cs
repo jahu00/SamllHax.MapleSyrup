@@ -10,7 +10,7 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
 {
     public class WzAnimation: WzEntity, IAnimation
     {
-        public static readonly string[] NonFrameNodeNames = { "seat", "foothold", "blend", "zigzag", "obstacle", "ladder", "rope", "repeat", "origin" };
+        public static readonly string[] NonFrameNodeNames = { "seat", "foothold", "blend", "zigzag", "obstacle", "ladder", "rope", "repeat", "origin", "damage", "dir", "disease", "level", "s1" };
 
         public WzAnimation(WzDirectory directory) : base(directory)
         {
@@ -51,7 +51,11 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
             Blend = _directory.GetSingleOrDefaultChild<WzIntValue>("blend")?.Value;
             ZigZag = _directory.GetSingleOrDefaultChild<WzIntValue>("zigzag")?.Value;
             Obstacle = _directory.GetSingleOrDefaultChild<WzIntValue>("obstacle")?.Value;
+            Damage = _directory.GetSingleOrDefaultChild<WzIntValue>("damage")?.Value;
             Origin = _directory.GetSingleOrDefaultChild<WzVector>("origin");
+            Dir = _directory.GetSingleOrDefaultChild<WzIntValue>("dir")?.Value;
+            Disease = _directory.GetSingleOrDefaultChild<WzIntValue>("disease")?.Value;
+            Level = _directory.GetSingleOrDefaultChild<WzIntValue>("level")?.Value;
         }
 
         public Dictionary<string, IFrame> Frames { get; } = new Dictionary<string, IFrame>();
@@ -62,6 +66,10 @@ namespace SamllHax.MapleSyrup.Providers.Dumper.Data
         public int? Blend { get; }
         public int? ZigZag { get; }
         public int? Obstacle { get; }
+        public int? Damage { get; }
+        public int? Dir { get; }
+        public int? Disease { get; }
+        public int? Level { get; }
         public IVector Origin { get; }
     }
 }

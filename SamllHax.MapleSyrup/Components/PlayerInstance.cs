@@ -14,6 +14,7 @@ namespace SamllHax.MapleSyrup.Components
     public class PlayerInstance : ComponentBase, IPhysicsObject, IDrawable, IUpdatable
     {
         const int footholdWidth = 5;
+        const int ladderWidth = 5;
 
         private CommonData _commonData;
         private CollisionDetector _collisionDetector;
@@ -90,6 +91,22 @@ namespace SamllHax.MapleSyrup.Components
                 {
                     var drag = _commonData.Physics.WalkDrag * SpeedX.OppositeDirection;
                     this.MoveHorizontally(events.Delta, drag, 0);
+                }
+            }
+            if (IsOnRail)
+            {
+                if (events.InputEvents.IsDown(InputAction.Up) && _collisionDetector.WillCollideWithWall(MapInstance.Ladders, X, Y - footholdWidth, X, out var ladderUp, tolerance: ladderWidth))
+                {
+                    PlaceOnLadder(ladderUp);
+                    Y = LastLadder.Y2;
+                    return;
+                }
+
+                if (events.InputEvents.IsDown(InputAction.Down) && _collisionDetector.WillCollideWithWall(MapInstance.Ladders, X, Y + footholdWidth + 1, X, out var ladderDown, tolerance: ladderWidth))
+                {
+                    PlaceOnLadder(ladderDown);
+                    Y = LastLadder.Y1;
+                    return;
                 }
             }
             if (IsClimbing)
@@ -190,13 +207,9 @@ namespace SamllHax.MapleSyrup.Components
             }
             else if (IsAirborn)
             {
-                if (events.InputEvents.IsDown(InputAction.Up) && _collisionDetector.WillCollideWithWall(MapInstance.Ladders, this, newX, out var ladder, tolerance: 3))
+                if (events.InputEvents.IsDown(InputAction.Up) && _collisionDetector.WillCollideWithWall(MapInstance.Ladders, this, newX, out var ladder, tolerance: ladderWidth))
                 {
-                    LastLadder = ladder;
-                    Z = ladder.Data.LayerId;
-                    X = ladder.X1;
-                    PhysicsState = PhysicsState.Climb;
-                    SpeedY.Stop();
+                    PlaceOnLadder(ladder);
                     return;
                 }
                 if (LastPlatform != null && IsFalling)
@@ -257,6 +270,15 @@ namespace SamllHax.MapleSyrup.Components
 
             X = (float)newX;
             Y = (float)newY;
+        }
+
+        private void PlaceOnLadder(Ladder ladder)
+        {
+            LastLadder = ladder;
+            Z = LastLadder.Data.LayerId;
+            X = LastLadder.X1;
+            PhysicsState = PhysicsState.Climb;
+            SpeedY.Stop();
         }
     }
 }

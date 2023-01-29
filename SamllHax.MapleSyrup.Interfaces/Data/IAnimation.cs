@@ -14,5 +14,6 @@ namespace SamllHax.MapleSyrup.Interfaces.Data
         int? Blend { get; }
         int? ZigZag { get; }
         IVector Origin { get; }
+        int? Damage { get; }
     }
 }
