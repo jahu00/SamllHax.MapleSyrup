@@ -18,6 +18,8 @@ namespace SamllHax.MapleSyrup.Draw
             { InputAction.Jump, Keys.LeftAlt },
             { InputAction.UsePortal, Keys.Up },
         };
+
+        private static List<InputAction> resetActions = new List<InputAction>();
         private KeyboardState _keyboardState;
 
         public InputEvents()
@@ -28,11 +30,27 @@ namespace SamllHax.MapleSyrup.Draw
         public InputEvents Init(KeyboardState keyboardState)
         {
             _keyboardState = keyboardState;
+            foreach(var resetAction in resetActions.ToArray())
+            {
+                if (_keyboardState.IsKeyPressed(inputActionMapping[resetAction]))
+                {
+                    resetActions.Remove(resetAction);
+                }
+            }
             return this;
         }
 
-        public bool IsDown(InputAction inputAction) => _keyboardState.IsKeyDown(inputActionMapping[inputAction]);
+        public bool IsDown(InputAction inputAction) => !resetActions.Contains(inputAction) && _keyboardState.IsKeyDown(inputActionMapping[inputAction]);
         public bool IsPressed(InputAction inputAction) => _keyboardState.IsKeyPressed(inputActionMapping[inputAction]);
+        public bool IsUp(InputAction inputAction) => _keyboardState.IsKeyReleased(inputActionMapping[inputAction]);
+        public void Reset(InputAction inputAction)
+        {
+            if (resetActions.Contains(inputAction))
+            {
+                return;
+            }
+            resetActions.Add(inputAction);
+        }
     }
 
     public enum InputAction

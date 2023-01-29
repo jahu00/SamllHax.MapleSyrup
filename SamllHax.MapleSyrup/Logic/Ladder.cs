@@ -10,8 +10,8 @@ namespace SamllHax.MapleSyrup.Logic
 {
     public class Ladder : LineSegment
     {
-        IMapLadder Data { get; }
-        public Ladder(IMapLadder data): base(data.X, data.Y1, data.Y2)
+        public IMapLadder Data { get; }
+        public Ladder(IMapLadder data): base(data.X, Math.Min(data.Y1, data.Y2), Math.Max(data.Y1, data.Y2))
         {
             Data = data;
         }

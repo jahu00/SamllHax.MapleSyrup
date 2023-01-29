@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SamllHax.MapleSyrup.Logic;
 
 namespace SamllHax.MapleSyrup.Components
 {
@@ -33,6 +34,7 @@ namespace SamllHax.MapleSyrup.Components
         public MapInstance MapInstance { get; set; }
 
         public Logic.Foothold LastPlatform { get; set; }
+        public Logic.Ladder LastLadder { get; set; }
 
         public PlayerInstance(CommonData commonData, CollisionDetector collisionDetector)
         {
@@ -67,25 +69,56 @@ namespace SamllHax.MapleSyrup.Components
                 this.ApplyGravity(events.Delta, _commonData.Physics.GravityAcc, _commonData.Physics.FallSpeed);
             }
 
-            var isWalking = false;
-            if (events.InputEvents.IsDown(InputAction.Left))
+            if (IsOnRail || IsAirborn)
             {
-                ScaleX = 1;
-                isWalking = true;
-                this.MoveHorizontally(events.Delta, _commonData.Physics.WalkDrag - _commonData.Physics.WalkForce, _commonData.Physics.WalkSpeed);
-            }
+                var hasWalked = false;
+                if (events.InputEvents.IsDown(InputAction.Left))
+                {
+                    ScaleX = 1;
+                    hasWalked = true;
+                    this.MoveHorizontally(events.Delta, _commonData.Physics.WalkDrag - _commonData.Physics.WalkForce, _commonData.Physics.WalkSpeed);
+                }
 
-            if (events.InputEvents.IsDown(InputAction.Right))
-            {
-                ScaleX = -1;
-                isWalking = true;
-                this.MoveHorizontally(events.Delta, _commonData.Physics.WalkForce - _commonData.Physics.WalkDrag, _commonData.Physics.WalkSpeed);
-            }
+                if (events.InputEvents.IsDown(InputAction.Right))
+                {
+                    ScaleX = -1;
+                    hasWalked = true;
+                    this.MoveHorizontally(events.Delta, _commonData.Physics.WalkForce - _commonData.Physics.WalkDrag, _commonData.Physics.WalkSpeed);
+                }
 
-            if (!isWalking && !SpeedX.IsStopped)
+                if (!hasWalked && !SpeedX.IsStopped)
+                {
+                    var drag = _commonData.Physics.WalkDrag * SpeedX.OppositeDirection;
+                    this.MoveHorizontally(events.Delta, drag, 0);
+                }
+            }
+            if (IsClimbing)
             {
-                var drag = _commonData.Physics.WalkDrag * SpeedX.OppositeDirection;
-                this.MoveHorizontally(events.Delta, drag, 0);
+                var hasClimbed = false;
+                if (events.InputEvents.IsDown(InputAction.Up))
+                {
+                    hasClimbed = true;
+                    this.MoveVertically(events.Delta, _commonData.Physics.WalkDrag - _commonData.Physics.WalkForce, _commonData.Physics.WalkSpeed);
+                }
+
+                if (events.InputEvents.IsDown(InputAction.Down))
+                {
+                    hasClimbed = true;
+                    this.MoveVertically(events.Delta, _commonData.Physics.WalkForce - _commonData.Physics.WalkDrag, _commonData.Physics.WalkSpeed);
+                }
+
+                if (!hasClimbed && !SpeedY.IsStopped)
+                {
+                    var drag = _commonData.Physics.WalkDrag * SpeedY.OppositeDirection;
+                    this.MoveVertically(events.Delta, drag, 0);
+                }
+
+                if (events.InputEvents.IsPressed(InputAction.Jump))
+                {
+                    this.Jump(_commonData.Physics.JumpSpeed * 0.75f, retainMomentum: true);
+                    PhysicsState = PhysicsState.Airborn;
+                    events.InputEvents.Reset(InputAction.Up);
+                }
             }
 
 
@@ -155,8 +188,17 @@ namespace SamllHax.MapleSyrup.Components
                     newY = (int)LastPlatform.GetY(newX);
                 }
             }
-            else
+            else if (IsAirborn)
             {
+                if (events.InputEvents.IsDown(InputAction.Up) && _collisionDetector.WillCollideWithWall(MapInstance.Ladders, this, newX, out var ladder, tolerance: 3))
+                {
+                    LastLadder = ladder;
+                    Z = ladder.Data.LayerId;
+                    X = ladder.X1;
+                    PhysicsState = PhysicsState.Climb;
+                    SpeedY.Stop();
+                    return;
+                }
                 if (LastPlatform != null && IsFalling)
                 {
                     var maxY = LastPlatform.GetY(newX);
@@ -171,6 +213,19 @@ namespace SamllHax.MapleSyrup.Components
                 {
                     newX = wall.X1 + SpeedX.OppositeDirection;
                     SpeedX.Stop();
+                }
+            }
+            else if (IsClimbing)
+            {
+                if (newY > LastLadder.Y2)
+                {
+                    PhysicsState = PhysicsState.Airborn;
+                }
+                if (newY < LastLadder.Y1 && LastLadder.Data.CanExitUp)
+                {
+                    PhysicsState = PhysicsState.Airborn;
+                } else if (newY < LastLadder.Y1 && !LastLadder.Data.CanExitUp) {
+                    newY = LastLadder.Y1; 
                 }
             }
 

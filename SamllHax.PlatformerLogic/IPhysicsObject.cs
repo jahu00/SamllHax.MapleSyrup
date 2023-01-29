@@ -18,14 +18,27 @@ namespace SamllHax.PlatformerLogic
             newY = physicsObject.Y + physicsObject.SpeedY.GetForDelta(delta);
         }
 
-        public static void Jump(this IPhysicsObject physicsObject, float jumpSpeed)
+        public static void Jump(this IPhysicsObject physicsObject, float jumpSpeed, bool retainMomentum = false)
         {
-            physicsObject.SpeedY.Set(-1 * jumpSpeed);
+            if (Math.Sign(jumpSpeed) != -1)
+            {
+                jumpSpeed = -1 * jumpSpeed;
+            }
+            if (retainMomentum)
+            {
+                jumpSpeed += physicsObject.SpeedY.Value;
+            }
+            physicsObject.SpeedY.Set(jumpSpeed);
         }
 
         public static void ApplyGravity(this IPhysicsObject physicsObject, float delta, float gravityAcceleration, float maxFallSpeed)
         {
             physicsObject.SpeedY.Accelerate(delta: delta, acceleration: gravityAcceleration, maxFallSpeed, normalizeMaxSpeed: false);
+        }
+
+        public static void MoveVertically(this IPhysicsObject physicsObject, float delta, float acceleration, float maxSpeed)
+        {
+            physicsObject.SpeedY.Accelerate(delta: delta, acceleration: acceleration, maxSpeed, normalizeMaxSpeed: true);
         }
 
         public static void MoveHorizontally(this IPhysicsObject physicsObject, float delta, float acceleration, float maxSpeed)
